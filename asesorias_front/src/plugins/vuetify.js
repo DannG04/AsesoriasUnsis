@@ -6,9 +6,17 @@ import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 // Importar estilos
 import 'vuetify/styles'
+import { VDateInput } from 'vuetify/labs/VDateInput'
+import { VTimePicker } from 'vuetify/labs/VTimePicker'
+
+
 
 export default createVuetify({
-    components,
+    components: {
+        ...components,
+        VDateInput, 
+        VTimePicker,
+    },
     directives,
     icons: {
         defaultSet: 'mdi',

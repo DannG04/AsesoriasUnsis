@@ -4,7 +4,7 @@
     <div v-if="$route.path === '/login'" class="login-fullscreen">
       <router-view />
     </div>
-    
+
     <!-- App with sidebar (for all other routes) -->
     <div v-else class="app-with-sidebar">
       <!-- Sidebar menu (always visible when logged in) -->
@@ -12,28 +12,37 @@
         <div class="sidebar-header">
           <img src="@/assets/logo-unsis.png" alt="Logo UNSIS" class="logo">
         </div>
-        
+
         <div class="sidebar-menu">
+          <router-link to="/home" class="menu-item">
+            <IconifyIcon icon="mdi-light:home" class="icon-menu" width="24" height="24" />
+            <span>Inicio</span>
+          </router-link>
           <router-link to="/registro-asesorias" class="menu-item">
-            <i class="icon-doc"></i> Registro de asesorías
+            <IconifyIcon icon="mdi-light:file-plus" class="icon-menu" width="24" height="24" />
+            <span>Registro de Asesorías</span>
           </router-link>
-          
+
           <router-link to="/historial-asesorias" class="menu-item">
-            <i class="icon-history"></i> Historial de asesorías
+            <IconifyIcon icon="mdi-light:clipboard-text" class="icon-menu" width="24" height="24" />
+            <span>Historial de Asesorías</span>
           </router-link>
-          
+
           <router-link to="/estadisticas" class="menu-item">
-            <i class="icon-chart"></i> Estadísticas
+            <IconifyIcon icon="mdi-light:chart-histogram" class="icon-menu" width="24" height="24" />
+            <span>Estadísticas</span>
           </router-link>
-          
+
           <router-link to="/perfil" class="menu-item">
-            <i class="icon-user"></i> Perfil
+            <IconifyIcon icon="mdi-light:account" class="icon-menu" width="24" height="24" />
+            <span>Perfil</span>
           </router-link>
-          
+
           <div class="sub-section">
             <div class="section-title">Opciones</div>
             <a href="#" @click.prevent="logout" class="menu-item">
-              <i class="icon-logout"></i> Cerrar Sesión
+            <IconifyIcon icon="mdi-light:logout" class="icon-menu" width="24" height="24" />
+            <span>Cerrar sesión</span>
             </a>
           </div>
         </div>
@@ -44,7 +53,7 @@
         <header v-if="pageTitle">
           <h1 class="page-title">{{ pageTitle }}</h1>
         </header>
-        
+
         <main class="main-content">
           <div class="content-box">
             <!-- Router view para cargar el contenido de las diferentes pantallas -->
@@ -62,6 +71,7 @@ export default {
   data() {
     return {
       pageTitles: {
+        '/home': 'INICIO',
         '/registro-asesorias': 'REGISTRO DE ASESORÍAS',
         '/historial-asesorias': 'HISTORIAL DE ASESORÍAS',
         '/estadisticas': 'ESTADÍSTICAS',
@@ -98,6 +108,7 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 * {
   margin: 0;
   padding: 0;
@@ -166,7 +177,8 @@ body {
   background-color: #f0f0f0;
 }
 
-.menu-item.active, .menu-item.router-link-active {
+.menu-item.active,
+.menu-item.router-link-active {
   background-color: #9AD7A7;
   border-left: 3px solid #0e734f;
   color: #0e734f;
@@ -201,20 +213,23 @@ body {
 }
 
 header {
-  padding: 20px;
+  padding-top: 15px;
+  padding-bottom: 10px;
   text-align: center;
 }
 
 .page-title {
-  font-size: 32px;
+  font-size: 40px;
   color: #000;
   font-weight: bold;
   margin: 0;
   text-transform: uppercase;
+  font-family: 'Lato', sans-serif;
 }
 
 .main-content {
   padding: 20px;
+  padding-top: 5px;
   flex: 1;
 }
 
@@ -229,9 +244,37 @@ header {
 }
 
 /* Icons */
-.icon-doc:before { content: "📋"; }
-.icon-history:before { content: "📜"; }
-.icon-chart:before { content: "📊"; }
-.icon-user:before { content: "👤"; }
-.icon-logout:before { content: "🚪"; }
+.icon-doc:before {
+  content: "📋";
+}
+
+.icon-history:before {
+  content: "📜";
+}
+
+.icon-chart:before {
+  content: "📊";
+}
+
+.icon-user:before {
+  content: "👤";
+}
+
+.icon-logout:before {
+  content: "🚪";
+}
+
+/* Estilos generales para iconos */
+.icon-menu {
+  vertical-align: middle;
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+
+/* Asegurar que el texto también esté alineado */
+.menu-item span {
+  vertical-align: middle;
+}
 </style>

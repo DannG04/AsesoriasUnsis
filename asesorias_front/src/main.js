@@ -5,6 +5,8 @@ import store from './store'
 import axios from 'axios'
 import vuetify from './plugins/vuetify'
 import 'vuetify/styles'
+import { Icon } from '@iconify/vue'  // Importar Iconify
+import '@mdi/font/css/materialdesignicons.css'
 
 // Configurar Axios
 axios.defaults.baseURL = 'http://localhost:8080'
@@ -16,6 +18,7 @@ if (token) {
 }
 
 const app = createApp(App)
+app.component('IconifyIcon', Icon)  // Registrar componente globalmente
 app.use(vuetify)
 app.use(router)
 app.use(store)
