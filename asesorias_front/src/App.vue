@@ -5,7 +5,9 @@
       <div class="nav-links">
         <router-link to="/home">Inicio</router-link>
         <a href="#" @click.prevent="logout">Cerrar Sesión</a>
+        
       </div>
+
     </nav>
     <router-view />
   </div>
@@ -13,6 +15,7 @@
 
 <script>
 export default {
+  
   name: 'App',
   computed: {
     isLoggedIn() {
@@ -27,7 +30,9 @@ export default {
         })
     }
   }
+
 }
+
 </script>
 
 <style>

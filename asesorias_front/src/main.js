@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
+import vuetify from './plugins/vuetify'
+import 'vuetify/styles'
 
 // Configurar Axios
 axios.defaults.baseURL = 'http://localhost:8080'
@@ -14,6 +16,7 @@ if (token) {
 }
 
 const app = createApp(App)
+app.use(vuetify)
 app.use(router)
 app.use(store)
 app.mount('#app')

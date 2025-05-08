@@ -4,13 +4,24 @@
             <h1>Bienvenido al Sistema</h1>
             <p v-if="currentUser">Hola, {{ currentUser.nombre }}!</p>
             <p>Has iniciado sesión correctamente.</p>
+            <v-chip variant="outlined">
+                <template v-slot:prepend>
+                    <Icon icon="mdi:home" />
+                </template>
+                Chip
+            </v-chip>
         </div>
     </div>
 </template>
 
 <script>
+import { Icon } from '@iconify/vue';
+
 export default {
     name: 'HomeU',
+    components: {
+        Icon
+    },
     computed: {
         currentUser() {
             return this.$store.getters.currentUser
