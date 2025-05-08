@@ -1,25 +1,80 @@
 <template>
   <div id="app">
-    <nav v-if="isLoggedIn" class="navbar">
-      <div class="brand">Sistema de Alumnos</div>
-      <div class="nav-links">
-        <router-link to="/home">Inicio</router-link>
-        <a href="#" @click.prevent="logout">Cerrar Sesión</a>
+    <!-- Login page (uses full screen) -->
+    <div v-if="$route.path === '/login'" class="login-fullscreen">
+      <router-view />
+    </div>
+    
+    <!-- App with sidebar (for all other routes) -->
+    <div v-else class="app-with-sidebar">
+      <!-- Sidebar menu (always visible when logged in) -->
+      <div v-if="isLoggedIn" class="sidebar">
+        <div class="sidebar-header">
+          <img src="@/assets/logo-unsis.png" alt="Logo UNSIS" class="logo">
+        </div>
         
+        <div class="sidebar-menu">
+          <router-link to="/registro-asesorias" class="menu-item">
+            <i class="icon-doc"></i> Registro de asesorías
+          </router-link>
+          
+          <router-link to="/historial-asesorias" class="menu-item">
+            <i class="icon-history"></i> Historial de asesorías
+          </router-link>
+          
+          <router-link to="/estadisticas" class="menu-item">
+            <i class="icon-chart"></i> Estadísticas
+          </router-link>
+          
+          <router-link to="/perfil" class="menu-item">
+            <i class="icon-user"></i> Perfil
+          </router-link>
+          
+          <div class="sub-section">
+            <div class="section-title">Opciones</div>
+            <a href="#" @click.prevent="logout" class="menu-item">
+              <i class="icon-logout"></i> Cerrar Sesión
+            </a>
+          </div>
+        </div>
       </div>
 
-    </nav>
-    <router-view />
+      <!-- Main content area -->
+      <div class="content-wrapper">
+        <header v-if="pageTitle">
+          <h1 class="page-title">{{ pageTitle }}</h1>
+        </header>
+        
+        <main class="main-content">
+          <div class="content-box">
+            <!-- Router view para cargar el contenido de las diferentes pantallas -->
+            <router-view />
+          </div>
+        </main>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  
   name: 'App',
+  data() {
+    return {
+      pageTitles: {
+        '/registro-asesorias': 'REGISTRO DE ASESORÍAS',
+        '/historial-asesorias': 'HISTORIAL DE ASESORÍAS',
+        '/estadisticas': 'ESTADÍSTICAS',
+        '/perfil': 'PERFIL'
+      }
+    }
+  },
   computed: {
     isLoggedIn() {
       return this.$store.getters.isLoggedIn
+    },
+    pageTitle() {
+      return this.pageTitles[this.$route.path]
     }
   },
   methods: {
@@ -28,11 +83,18 @@ export default {
         .then(() => {
           this.$router.push('/login')
         })
+        .catch(error => {
+          console.error('Error durante el cierre de sesión:', error)
+        })
+    }
+  },
+  watch: {
+    $route(to) {
+      // Para actualizar el título según la ruta actual
+      document.title = this.pageTitles[to.path] || 'Sistema UNSIS'
     }
   }
-
 }
-
 </script>
 
 <style>
@@ -54,33 +116,122 @@ body {
   min-height: 100vh;
 }
 
-.navbar {
+.app-with-sidebar {
+  width: 100%;
+  min-height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #3498db;
-  color: white;
-  padding: 1rem 2rem;
 }
 
-.brand {
-  font-size: 1.5rem;
+/* Login page styles */
+.login-fullscreen {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #9AD7A7;
+}
+
+/* Sidebar styles based on the screenshot */
+.sidebar {
+  width: 234px;
+  min-height: 100vh;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
+}
+
+.sidebar-header {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.logo {
+  max-width: 100px;
+  height: auto;
+}
+
+.sidebar-menu {
+  padding: 10px 0;
+}
+
+.menu-item {
+  display: block;
+  padding: 12px 15px;
+  text-decoration: none;
+  color: #333;
+  border-left: 3px solid transparent;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-item.active, .menu-item.router-link-active {
+  background-color: #9AD7A7;
+  border-left: 3px solid #0e734f;
+  color: #0e734f;
   font-weight: bold;
 }
 
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  margin-left: 1rem;
+.menu-item i {
+  margin-right: 10px;
+  width: 16px;
+  text-align: center;
 }
 
-.nav-links a:hover {
-  text-decoration: underline;
+.sub-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+.section-title {
+  padding: 5px 15px;
+  font-size: 12px;
+  color: #777;
+  font-weight: bold;
 }
+
+/* Content area */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #9AD7A7;
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+}
+
+.page-title {
+  font-size: 32px;
+  color: #000;
+  font-weight: bold;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.main-content {
+  padding: 20px;
+  flex: 1;
+}
+
+.content-box {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #86c194;
+}
+
+/* Icons */
+.icon-doc:before { content: "📋"; }
+.icon-history:before { content: "📜"; }
+.icon-chart:before { content: "📊"; }
+.icon-user:before { content: "👤"; }
+.icon-logout:before { content: "🚪"; }
 </style>
