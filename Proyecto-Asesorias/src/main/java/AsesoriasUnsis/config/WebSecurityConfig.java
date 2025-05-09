@@ -1,6 +1,6 @@
 package AsesoriasUnsis.config;
 
-import AsesoriasUnsis.service.AlumnoDetailsService;
+import AsesoriasUnsis.service.UsuariosDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,7 @@ public class WebSecurityConfig {
     private JwtRequestFilter jwtRequestFilter;
 
     @Autowired
-    private AlumnoDetailsService alumnoDetailsService;
+    private UsuariosDetailsService alumnoDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

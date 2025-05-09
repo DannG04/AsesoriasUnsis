@@ -1,6 +1,6 @@
 package AsesoriasUnsis.config;
 
-import AsesoriasUnsis.service.AlumnoDetailsService;
+import AsesoriasUnsis.service.UsuariosDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
-    private AlumnoDetailsService alumnoDetailsService;
+    private UsuariosDetailsService alumnoDetailsService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;

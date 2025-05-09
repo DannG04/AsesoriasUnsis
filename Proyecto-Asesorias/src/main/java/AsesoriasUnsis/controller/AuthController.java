@@ -1,8 +1,8 @@
 package AsesoriasUnsis.controller;
 
 import AsesoriasUnsis.config.JwtTokenUtil;
-import AsesoriasUnsis.model.Alumno;
-import AsesoriasUnsis.service.AlumnoDetailsService;
+import AsesoriasUnsis.model.Usuarios;
+import AsesoriasUnsis.service.UsuariosDetailsService;
 import AsesoriasUnsis.service.AuthenticationService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +26,7 @@ public class AuthController {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private AlumnoDetailsService alumnoDetailsService;
+    private UsuariosDetailsService alumnoDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -48,7 +48,7 @@ public class AuthController {
     @PostMapping("/registro")
     public ResponseEntity<?> registerUser(@RequestBody RegistroRequest registroRequest) {
         try {
-            Alumno alumno = authService.registrarAlumno(
+            Usuarios alumno = authService.registrarAlumno(
                     registroRequest.getNombre(), 
                     registroRequest.getContrasenia()
             );
