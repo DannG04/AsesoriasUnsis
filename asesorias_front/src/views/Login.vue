@@ -15,6 +15,7 @@
 
                   <h2 class="text-center fw-bold mb-4">INICIAR SESIÓN</h2>
 
+
                   <form @submit.prevent="login">
                     <div class="mb-4">
                       <label for="username" class="form-label">Nombre de usuario</label>
@@ -54,6 +55,8 @@
 </template>
 
 <script>
+import { useToast } from "vue-toastification";
+
 export default {
   name: 'LoginComponent',
   data() {
@@ -63,8 +66,12 @@ export default {
         contrasenia: ''
       },
       error: '',
-      loading: false
+      loading: false,
+      toast: null
     }
+  },
+  created() {
+    this.toast = useToast();
   },
   methods: {
     login() {
@@ -81,7 +88,12 @@ export default {
         })
         .catch(err => {
           console.error('Error completo:', err)
-          this.error = err.response?.data || 'Error al iniciar sesión'
+          if (err.response && err.response.status === 401) {
+            // Usamos toast.error en lugar del mensaje en el div
+            this.toast.error('Credenciales incorrectas. Por favor, verifique su usuario y contraseña.');
+          } else {
+            this.toast.error('Error al iniciar sesión. Por favor, intente nuevamente más tarde.');
+          }
         })
         .finally(() => {
           this.loading = false
@@ -90,6 +102,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .botonPrimario {
   background-color: #9AD7A7;

@@ -1,7 +1,7 @@
 package AsesoriasUnsis.service;
 
-import AsesoriasUnsis.model.Alumno;
-import AsesoriasUnsis.repository.AlumnoRepository;
+import AsesoriasUnsis.model.Usuarios;
+import AsesoriasUnsis.repository.UsuariosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
 
     @Autowired
-    private AlumnoRepository alumnoRepository;
+    private UsuariosRepository alumnoRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -21,21 +21,22 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public Alumno registrarAlumno(String nombre, String contrasenia) {
-        if (alumnoRepository.existsByUser(nombre)) {
+    public Usuarios registrarAlumno(String usuario, String userPassword, String rol, Long idProfesor) {
+        if (alumnoRepository.existsByUsuario(usuario)) {
             throw new RuntimeException("El nombre de usuario ya existe");
         }
 
-        Alumno alumno = new Alumno();
-        alumno.setUser(nombre);
-        alumno.setPassword(passwordEncoder.encode(contrasenia));
-        
+        Usuarios alumno = new Usuarios();
+        alumno.setUsuario(usuario);
+        alumno.setUserPassword(passwordEncoder.encode(userPassword));
+        alumno.setRol(rol);
+        alumno.setIdProfesor(idProfesor);
+
         return alumnoRepository.save(alumno);
     }
 
-    public Authentication autenticarAlumno(String nombre, String contrasenia) {
+    public Authentication autenticarAlumno(String usuario, String userPassword) {
         return authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(nombre, contrasenia)
-        );
+                new UsernamePasswordAuthenticationToken(usuario, userPassword));
     }
 }
