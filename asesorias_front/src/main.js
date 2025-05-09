@@ -7,6 +7,8 @@ import vuetify from './plugins/vuetify'
 import 'vuetify/styles'
 import { Icon } from '@iconify/vue'  // Importar Iconify
 import '@mdi/font/css/materialdesignicons.css'
+import Toast from "vue-toastification"
+import "vue-toastification/dist/index.css"
 
 // Configurar Axios
 axios.defaults.baseURL = 'http://localhost:8080'
@@ -22,4 +24,13 @@ app.component('IconifyIcon', Icon)  // Registrar componente globalmente
 app.use(vuetify)
 app.use(router)
 app.use(store)
+app.use(Toast, {
+    position: "bottom-right",
+    timeout: 3000,
+    closeOnClick: true,
+    pauseOnFocusLoss: true,
+    pauseOnHover: true,
+    draggable: true,
+    transition: "Vue-Toastification__bounce"
+})
 app.mount('#app')

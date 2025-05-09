@@ -21,7 +21,7 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public Usuarios registrarAlumno(String usuario, String userPassword) {
+    public Usuarios registrarAlumno(String usuario, String userPassword, String rol, Long idProfesor) {
         if (alumnoRepository.existsByUsuario(usuario)) {
             throw new RuntimeException("El nombre de usuario ya existe");
         }
@@ -29,8 +29,8 @@ public class AuthenticationService {
         Usuarios alumno = new Usuarios();
         alumno.setUsuario(usuario);
         alumno.setUserPassword(passwordEncoder.encode(userPassword));
-        alumno.setRol("profe"); // Set a default role
-        alumno.setIdProfesor(1L); // Set a default professor ID
+        alumno.setRol(rol);
+        alumno.setIdProfesor(idProfesor);
 
         return alumnoRepository.save(alumno);
     }

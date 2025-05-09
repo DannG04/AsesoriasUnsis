@@ -38,11 +38,16 @@
             <span>Perfil</span>
           </router-link>
 
+          <router-link to="/register" class="menu-item">
+            <IconifyIcon icon="mdi-light:plus-box" class="icon-menu" width="24" height="24" />
+            <span>Registro de Usuario</span>
+          </router-link>
+
           <div class="sub-section">
             <div class="section-title">Opciones</div>
             <a href="#" @click.prevent="logout" class="menu-item">
-            <IconifyIcon icon="mdi-light:logout" class="icon-menu" width="24" height="24" />
-            <span>Cerrar sesión</span>
+              <IconifyIcon icon="mdi-light:logout" class="icon-menu" width="24" height="24" />
+              <span>Cerrar sesión</span>
             </a>
           </div>
         </div>
@@ -75,7 +80,8 @@ export default {
         '/registro-asesorias': 'REGISTRO DE ASESORÍAS',
         '/historial-asesorias': 'HISTORIAL DE ASESORÍAS',
         '/estadisticas': 'ESTADÍSTICAS',
-        '/perfil': 'PERFIL'
+        '/perfil': 'PERFIL',
+        '/register': 'Registro de Usuario',
       }
     }
   },
@@ -109,6 +115,7 @@ export default {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -241,27 +248,6 @@ header {
   height: 100%;
   overflow: hidden;
   border: 1px solid #86c194;
-}
-
-/* Icons */
-.icon-doc:before {
-  content: "📋";
-}
-
-.icon-history:before {
-  content: "📜";
-}
-
-.icon-chart:before {
-  content: "📊";
-}
-
-.icon-user:before {
-  content: "👤";
-}
-
-.icon-logout:before {
-  content: "🚪";
 }
 
 /* Estilos generales para iconos */

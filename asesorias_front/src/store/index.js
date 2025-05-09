@@ -59,7 +59,7 @@ export default createStore({
                 commit('auth_request')
                 axios.post('/api/auth/registro', user)
                     .then(response => {
-                        resolve(response)
+                        resolve(response)  // No se actualiza el estado después del registro
                     })
                     .catch(err => {
                         commit('auth_error')

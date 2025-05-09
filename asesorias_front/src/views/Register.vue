@@ -1,7 +1,7 @@
 <template>
     <div class="auth-container">
         <div class="auth-form">
-            <h2>Registro de Alumno</h2>
+            <h2>Registro de Usuario</h2>
             <div v-if="error" class="error-message">{{ error }}</div>
             <div v-if="success" class="success-message">{{ success }}</div>
             <form @submit.prevent="register">
@@ -20,13 +20,23 @@
                     <input type="password" id="confirmarContrasenia" v-model="confirmarContrasenia" required
                         placeholder="Confirme su contraseña">
                 </div>
+                <div class="form-group">
+                    <label for="rol">Rol</label>
+                    <select id="rol" v-model="user.rol" required>
+                        <option value="profe">Profesor</option>
+                        <option value="admin">Administrador</option>
+                        <option value="alumno">Alumno</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="idProfesor">ID Profesor</label>
+                    <input type="number" id="idProfesor" v-model="user.idProfesor" required
+                        placeholder="Ingrese el ID del profesor">
+                </div>
                 <button type="submit" class="btn-primary" :disabled="loading">
-                    {{ loading ? 'Registrando...' : 'Registrarse' }}
+                    {{ loading ? 'Registrando...' : 'Registrar Usuario' }}
                 </button>
             </form>
-            <div class="auth-links">
-                <p>¿Ya tienes una cuenta? <router-link to="/login">Inicia Sesión</router-link></p>
-            </div>
         </div>
     </div>
 </template>
@@ -38,7 +48,9 @@ export default {
         return {
             user: {
                 nombre: '',
-                contrasenia: ''
+                contrasenia: '',
+                rol: 'profe', 
+                idProfesor: 1 
             },
             confirmarContrasenia: '',
             error: '',
@@ -59,12 +71,15 @@ export default {
 
             this.loading = true
 
+            console.log('Enviando datos:', this.user);
             this.$store.dispatch('register', this.user)
-                .then(() => {
-                    this.success = 'Registro exitoso. Redirigiendo al login...'
-                    setTimeout(() => {
-                        this.$router.push('/login')
-                    }, 2000)
+                .then(response => {
+                    console.log('Respuesta registro:', response);
+                    this.success = 'Usuario registrado exitosamente'
+                    // Limpiar el formulario después del registro
+                    this.user.nombre = '';
+                    this.user.contrasenia = '';
+                    this.confirmarContrasenia = '';
                 })
                 .catch(err => {
                     this.error = err.response?.data || 'Error en el registro'
@@ -111,6 +126,14 @@ label {
 }
 
 input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ddd;

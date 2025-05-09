@@ -14,18 +14,18 @@ public class Usuarios {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idusuario") // Update if your DB uses this naming
+    @Column(name = "idusuario")
     private Long idUsuario;
 
     @Column(nullable = false, unique = true)
     private String usuario;
 
-    @Column(name = "userpassword", nullable = false) // Match the actual column name
+    @Column(name = "userpassword", nullable = false)
     private String userPassword;
 
     @Column(nullable = false)
     private String rol;
 
-    @Column(name = "idprofesor", nullable = false) // Match the actual column name
+    @Column(name = "idprofesor")
     private Long idProfesor;
 }
