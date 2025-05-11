@@ -1,80 +1,100 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
 
+let user = null;
+try {
+    const storedUser = localStorage.getItem('user');
+    user = storedUser && storedUser !== 'undefined' ? JSON.parse(storedUser) : null;
+} catch (error) {
+    console.error('Error parsing user from localStorage:', error);
+}
+
 export default createStore({
+    // Estado global de la aplicación
     state: {
-        token: localStorage.getItem('token') || '',
-        user: JSON.parse(localStorage.getItem('user')) || null,
-        status: ''
+        token: localStorage.getItem('token') || '', // Token de autenticación almacenado en localStorage
+        user: user, // Información del usuario autenticado
+        status: '' // Estado de la autenticación (e.g., 'loading', 'success', 'error')
     },
+    
+    // Getters para acceder al estado global
     getters: {
-        isLoggedIn: state => !!state.token,
-        authStatus: state => state.status,
-        currentUser: state => state.user
+        isLoggedIn: state => !!state.token, // Verifica si el usuario está autenticado
+        authStatus: state => state.status, // Devuelve el estado de la autenticación
+        currentUser: state => state.user // Devuelve la información del usuario autenticado
     },
+
+    // Mutations para modificar el estado global
     mutations: {
         auth_request(state) {
-            state.status = 'loading'
+            state.status = 'loading'; // Cambia el estado a 'loading' durante la autenticación
         },
         auth_success(state, { token, user }) {
-            state.status = 'success'
-            state.token = token
-            state.user = user
+            state.status = 'success'; // Cambia el estado a 'success' después de la autenticación exitosa
+            state.token = token; // Almacena el token de autenticación
+            state.user = user; // Almacena la información del usuario
         },
         auth_error(state) {
-            state.status = 'error'
+            state.status = 'error'; // Cambia el estado a 'error' si la autenticación falla
         },
         logout(state) {
-            state.status = ''
-            state.token = ''
-            state.user = null
+            state.status = ''; // Restablece el estado de autenticación
+            state.token = ''; // Elimina el token de autenticación
+            state.user = null; // Elimina la información del usuario
         },
         SET_TOKEN(state, token) {
-            state.token = token;
+            state.token = token; // Actualiza el token de autenticación
         },
         SET_USER(state, user) {
-            state.user = user;
+            state.user = user; // Actualiza la información del usuario
         }
     },
+
+    // Acciones para realizar operaciones asíncronas
     actions: {
         login({ commit }, user) {
             return new Promise((resolve, reject) => {
+                // Realiza una solicitud de inicio de sesión al backend
                 axios.post('/api/auth/login', user)
                     .then(response => {
+                        // Maneja la respuesta exitosa
                         const token = response.data.token;
-                        console.log('Token recibido:', token);
-                        localStorage.setItem('token', token);
-                        commit('SET_TOKEN', token);
-                        commit('SET_USER', response.data.user || {});
+                        const user = response.data.user;
+                        localStorage.setItem('token', token); // Almacena el token en localStorage
+                        localStorage.setItem('user', JSON.stringify(user)); // Almacena la información del usuario
+                        commit('auth_success', { token, user }); // Actualiza el estado global
                         resolve(response);
                     })
                     .catch(error => {
-                        console.error('Error en login:', error);
+                        // Maneja errores de autenticación
+                        commit('auth_error');
+                        localStorage.removeItem('token'); // Elimina el token en caso de error
+                        localStorage.removeItem('user'); // Elimina la información del usuario
                         reject(error);
                     });
             });
         },
         register({ commit }, user) {
             return new Promise((resolve, reject) => {
-                commit('auth_request')
+                commit('auth_request'); // Cambia el estado a 'loading'
+                // Realiza una solicitud de registro al backend
                 axios.post('/api/auth/registro', user)
                     .then(response => {
-                        resolve(response)  // No se actualiza el estado después del registro
+                        resolve(response);
                     })
-                    .catch(err => {
-                        commit('auth_error')
-                        reject(err)
-                    })
-            })
+                    .catch(error => {
+                        commit('auth_error'); // Cambia el estado a 'error' en caso de fallo
+                        reject(error);
+                    });
+            });
         },
         logout({ commit }) {
             return new Promise(resolve => {
-                commit('logout')
-                localStorage.removeItem('token')
-                localStorage.removeItem('user')
-                delete axios.defaults.headers.common['Authorization']
-                resolve()
-            })
+                commit('logout'); // Restablece el estado global
+                localStorage.removeItem('token'); // Elimina el token de localStorage
+                localStorage.removeItem('user'); // Elimina la información del usuario
+                resolve();
+            });
         }
     }
-})
+});

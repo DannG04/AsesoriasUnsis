@@ -28,6 +28,12 @@ public class AuthController {
     @Autowired
     private UsuariosDetailsService alumnoDetailsService;
 
+    /**
+     * Endpoint para autenticar a un usuario.
+     * 
+     * @param loginRequest Objeto que contiene el nombre de usuario y contraseña.
+     * @return Respuesta con el token JWT si la autenticación es exitosa.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         try {
@@ -44,6 +50,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Endpoint para registrar un nuevo usuario.
+     * 
+     * @param registroRequest Objeto que contiene los datos del usuario a registrar.
+     * @return Respuesta indicando el éxito o error del registro.
+     */
     @PostMapping("/registro")
     public ResponseEntity<?> registerUser(@RequestBody RegistroRequest registroRequest) {
         try {
@@ -53,11 +65,18 @@ public class AuthController {
                     registroRequest.getRol(),
                     registroRequest.getIdProfesor());
             return ResponseEntity.ok("Usuario registrado exitosamente");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // Manejo específico de excepciones de negocio
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            // Manejo genérico de excepciones
+            return ResponseEntity.status(500).body("Error interno del servidor");
         }
     }
 
+    /**
+     * Clase interna para representar la solicitud de inicio de sesión.
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -66,6 +85,9 @@ public class AuthController {
         private String contrasenia;
     }
 
+    /**
+     * Clase interna para representar la solicitud de registro de usuario.
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -76,6 +98,9 @@ public class AuthController {
         private Long idProfesor;
     }
 
+    /**
+     * Clase interna para encapsular la respuesta con el token JWT.
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

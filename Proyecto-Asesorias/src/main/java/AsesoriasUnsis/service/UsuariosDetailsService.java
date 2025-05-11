@@ -11,17 +11,32 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+/**
+ * Servicio que implementa UserDetailsService para cargar detalles de los
+ * usuarios.
+ * Es utilizado por Spring Security para autenticar y autorizar usuarios.
+ */
 @Service
 public class UsuariosDetailsService implements UserDetailsService {
 
     @Autowired
     private UsuariosRepository alumnoRepository;
 
+    /**
+     * Carga un usuario por su nombre de usuario.
+     * 
+     * @param username Nombre de usuario a buscar.
+     * @return Un objeto UserDetails que contiene la información del usuario.
+     * @throws UsernameNotFoundException Si el usuario no se encuentra en la base de
+     *                                   datos.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuarios alumno = alumnoRepository.findByUsuario(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Alumno no encontrado: " + username));
 
+        // Devuelve un objeto UserDetails con el nombre de usuario, contraseña y roles
+        // vacíos
         return new User(alumno.getUsuario(), alumno.getUserPassword(), new ArrayList<>());
     }
 }

@@ -1,41 +1,44 @@
 <template>
+    <!-- Contenedor principal para el formulario de registro -->
     <div class="auth-container">
         <div class="auth-form">
             <h2>Registro de Usuario</h2>
-            <div v-if="error" class="error-message">{{ error }}</div>
-            <div v-if="success" class="success-message">{{ success }}</div>
+
+            <!-- Formulario de registro -->
             <form @submit.prevent="register">
                 <div class="form-group">
-                    <label for="nombre">Nombre de Usuario</label>
-                    <input type="text" id="nombre" v-model="user.nombre" required
-                        placeholder="Ingrese su nombre de usuario">
+                    <label for="nombre">Nombre de usuario</label>
+                    <input type="text" id="nombre" v-model="user.nombre" placeholder="Ingrese su nombre de usuario" />
                 </div>
+
                 <div class="form-group">
                     <label for="contrasenia">Contraseña</label>
-                    <input type="password" id="contrasenia" v-model="user.contrasenia" required
-                        placeholder="Ingrese su contraseña">
+                    <input type="password" id="contrasenia" v-model="user.contrasenia"
+                        placeholder="Ingrese su contraseña" />
                 </div>
-                <div class="form-group">
-                    <label for="confirmarContrasenia">Confirmar Contraseña</label>
-                    <input type="password" id="confirmarContrasenia" v-model="confirmarContrasenia" required
-                        placeholder="Confirme su contraseña">
-                </div>
+
                 <div class="form-group">
                     <label for="rol">Rol</label>
-                    <select id="rol" v-model="user.rol" required>
-                        <option value="profe">Profesor</option>
+                    <select id="rol" v-model="user.rol">
+                        <option value="">Seleccione un rol</option>
                         <option value="admin">Administrador</option>
-                        <option value="alumno">Alumno</option>
+                        <option value="user">Usuario</option>
                     </select>
                 </div>
+
                 <div class="form-group">
-                    <label for="idProfesor">ID Profesor</label>
-                    <input type="number" id="idProfesor" v-model="user.idProfesor" required
-                        placeholder="Ingrese el ID del profesor">
+                    <label for="idProfesor">ID del Profesor (opcional)</label>
+                    <input type="number" id="idProfesor" v-model="user.idProfesor"
+                        placeholder="Ingrese el ID del profesor" />
                 </div>
+
                 <button type="submit" class="btn-primary" :disabled="loading">
-                    {{ loading ? 'Registrando...' : 'Registrar Usuario' }}
+                    {{ loading ? 'Registrando...' : 'Registrar' }}
                 </button>
+
+                <div class="auth-links">
+                    <p>¿Ya tienes una cuenta? <a href="/login">Inicia sesión</a></p>
+                </div>
             </form>
         </div>
     </div>
@@ -47,49 +50,36 @@ export default {
     data() {
         return {
             user: {
-                nombre: '',
-                contrasenia: '',
-                rol: 'profe', 
-                idProfesor: 1 
+                nombre: '', // Campo para el nombre de usuario
+                contrasenia: '', // Campo para la contraseña
+                rol: '', // Campo para el rol del usuario
+                idProfesor: null // Campo opcional para el ID del profesor
             },
-            confirmarContrasenia: '',
-            error: '',
-            success: '',
-            loading: false
-        }
+            loading: false // Indicador de carga
+        };
     },
     methods: {
+        /**
+         * Método para manejar el registro de un nuevo usuario.
+         * Realiza una solicitud al backend y maneja los errores.
+         */
         register() {
-            this.error = ''
-            this.success = ''
+            this.loading = true;
 
-            // Validar que las contraseñas coincidan
-            if (this.user.contrasenia !== this.confirmarContrasenia) {
-                this.error = 'Las contraseñas no coinciden'
-                return
-            }
-
-            this.loading = true
-
-            console.log('Enviando datos:', this.user);
             this.$store.dispatch('register', this.user)
-                .then(response => {
-                    console.log('Respuesta registro:', response);
-                    this.success = 'Usuario registrado exitosamente'
-                    // Limpiar el formulario después del registro
-                    this.user.nombre = '';
-                    this.user.contrasenia = '';
-                    this.confirmarContrasenia = '';
+                .then(() => {
+                    this.$router.push('/login'); // Redirige al inicio de sesión tras el registro exitoso
                 })
                 .catch(err => {
-                    this.error = err.response?.data || 'Error en el registro'
+                    console.error('Error al registrar usuario:', err);
+                    alert('Error al registrar usuario. Por favor, intente nuevamente.');
                 })
                 .finally(() => {
-                    this.loading = false
-                })
+                    this.loading = false;
+                });
         }
     }
-}
+};
 </script>
 
 <style scoped>
@@ -125,14 +115,7 @@ label {
     font-weight: 500;
 }
 
-input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
+input,
 select {
     width: 100%;
     padding: 0.75rem;
@@ -174,23 +157,5 @@ select {
 
 .auth-links a:hover {
     text-decoration: underline;
-}
-
-.error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    text-align: center;
 }
 </style>
