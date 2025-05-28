@@ -79,7 +79,7 @@ export default {
   data() {
     return {
       user: {
-        nombre: '', // Campo para el nombre de usuario
+        nombre:'', // Campo para el nombre de usuario
         contrasenia: '' // Campo para la contraseña
       },
       error: '', // Mensaje de error
@@ -99,7 +99,7 @@ export default {
     login() {
       this.loading = true;
       this.error = '';
-
+      this.user.nombre = this.user.nombre.trim(); 
       console.log('Intentando iniciar sesión con:', this.user);
 
       this.$store.dispatch('login', this.user)
@@ -107,6 +107,7 @@ export default {
           console.log('Login exitoso:', response);
           console.log('Token guardado:', localStorage.getItem('token'));
           this.$router.push('/Home');
+          this.toast.success('Inicio de sesión exitoso. Bienvenido!');
         })
         .catch(err => {
           console.error('Error completo:', err);

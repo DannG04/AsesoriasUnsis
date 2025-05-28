@@ -27,7 +27,7 @@ const routes = [
     path: REGISTER_ROUTE,
     name: 'Register',
     component: Register,
-    meta: { requiresAuth: true } // Requiere autenticación
+    meta: { requiresAuth: false } // Requiere autenticación
   },
   {
     path: HOME_ROUTE,
