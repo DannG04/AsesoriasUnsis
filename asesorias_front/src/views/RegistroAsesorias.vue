@@ -78,6 +78,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
+import api from '@/services/api';
 
 // Store
 const store = useStore();
@@ -124,19 +125,38 @@ const calcularPeriodoActual = () => {
   }
 };
 
+// Función para obtener la fecha actual en formato YYYY-MM-DD
+const obtenerFechaActual = () => {
+  const hoy = new Date();
+  return hoy.toISOString().split('T')[0];
+};
+
+// Función para obtener la hora actual en formato HH:MM
+const obtenerHoraActual = () => {
+  const ahora = new Date();
+  return ahora.toTimeString().slice(0, 5);
+};
+
+// Función para obtener una hora después de la hora actual
+const obtenerHoraMasUna = () => {
+  const ahora = new Date();
+  ahora.setHours(ahora.getHours() + 1);
+  return ahora.toTimeString().slice(0, 5);
+};
+
 // Formulario reactivo
 const valid = ref(false);
 const formData = reactive({
   nombreProfesor: '',
   periodo: calcularPeriodoActual(), // Calcular automáticamente el periodo
-  matricula: '2022060488',
-  nombreAlumno: 'Daniel',
-  apellidosAlumno: 'González Ruiz',
-  licenciatura: 'Informática',
-  grupo: '606',
-  fecha: '',
-  horaInicio: '',
-  horaFinal: '',
+  matricula: '',
+  nombreAlumno: '',
+  apellidosAlumno: '',
+  licenciatura: '',
+  grupo: '',
+  fecha: obtenerFechaActual(), // Establecer fecha actual
+  horaInicio: obtenerHoraActual(), // Establecer hora actual
+  horaFinal: obtenerHoraMasUna(), // Establecer una hora después
   materiaSeleccionada: 'Materia1',
   lugarAsesoria: 'Biblioteca',
   observaciones: ''
@@ -157,11 +177,75 @@ watch(currentProfesor, (newProfesor) => {
   }
 }, { immediate: true });
 
+// Función para obtener datos del estudiante por matrícula
+const obtenerDatosEstudiante = async (matricula) => {
+  try {
+    console.log('Consultando estudiante con matrícula:', matricula);
+    const response = await api.getEstudiantePorMatricula(matricula);
+
+    if (response.data) {
+      const estudiante = response.data;
+      console.log('Datos del estudiante recibidos:', estudiante);
+
+      // Actualizar los campos del formulario con los datos del estudiante
+      // Mapear los campos según el modelo del backend
+      formData.nombreAlumno = estudiante.nomEst || '';
+      formData.apellidosAlumno = [
+        estudiante.apellidoPEst || '',
+        estudiante.apellidoMEst || ''
+      ].filter(part => part.trim() !== '').join(' ');
+
+      const responseCarrera = await api.getCarreraPorId(estudiante.idCarrera);
+      formData.licenciatura = responseCarrera.data?.nombreCarrera || '';
+      let grupoEstudiante = '';
+      if (estudiante.idCarrera < 10) {
+        grupoEstudiante = `${estudiante.idSemestre}0${estudiante.idCarrera}` || '';
+      } else {
+        grupoEstudiante = `${estudiante.idSemestre}${estudiante.idCarrera}`;
+      }
+
+      formData.grupo = grupoEstudiante || '';
+    }
+
+  } catch (error) {
+    console.error('Error al obtener datos del estudiante:', error);
+    // Limpiar los campos si hay error
+    formData.nombreAlumno = '';
+    formData.apellidosAlumno = '';
+    formData.licenciatura = '';
+    formData.grupo = '';
+  }
+};
+
+// Watcher para la matrícula - ejecuta la consulta cuando tenga exactamente 10 dígitos
+watch(() => formData.matricula, (newMatricula) => {
+  // Verificar que la matrícula tenga exactamente 10 dígitos numéricos
+  if (newMatricula && /^\d{10}$/.test(newMatricula)) {
+    obtenerDatosEstudiante(newMatricula);
+  } else if (newMatricula && newMatricula.length < 10) {
+    // Si tiene menos de 10 dígitos, limpiar los campos del estudiante
+    formData.nombreAlumno = '';
+    formData.apellidosAlumno = '';
+    formData.licenciatura = '';
+    formData.grupo = '';
+  }
+});
+
+// Watcher para actualizar automáticamente la hora final cuando cambie la hora de inicio
+watch(() => formData.horaInicio, (newHoraInicio) => {
+  if (newHoraInicio) {
+    const [horas, minutos] = newHoraInicio.split(':').map(Number);
+    const fecha = new Date();
+    fecha.setHours(horas + 1, minutos, 0, 0);
+    formData.horaFinal = fecha.toTimeString().slice(0, 5);
+  }
+});
+
 // Reglas de validación
 const requiredRules = [v => !!v || 'Este campo es requerido'];
 const matriculaRules = [
   ...requiredRules,
-  v => /^\d{9,10}$/.test(v) || 'La matrícula debe tener entre 9 y 10 dígitos'
+  v => /^\d{10}$/.test(v) || 'La matrícula debe tener exactamente 10 dígitos'
 ];
 
 // Información de cabecera - ahora como computed para que sea reactiva
