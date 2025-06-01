@@ -20,8 +20,9 @@ import java.util.ArrayList;
 public class UsuariosDetailsService implements UserDetailsService {
 
     @Autowired
-    private UsuariosRepository alumnoRepository;
-
+    private UsuariosRepository usuarioRepository;
+    
+    public static String idProfesor;
     /**
      * Carga un usuario por su nombre de usuario.
      * 
@@ -32,11 +33,12 @@ public class UsuariosDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuarios alumno = alumnoRepository.findByUsuario(username)
+        Usuarios usuario = usuarioRepository.findByUsuario(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Alumno no encontrado: " + username));
-
+        idProfesor = usuario.getIdProfesor().toString();
         // Devuelve un objeto UserDetails con el nombre de usuario, contraseña y roles
         // vacíos
-        return new User(alumno.getUsuario(), alumno.getUserPassword(), new ArrayList<>());
+        return new User(usuario.getUsuario(), usuario.getUserPassword(), new ArrayList<>());
     }
+
 }

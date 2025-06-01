@@ -1,0 +1,16 @@
+"idProfesor","nomProf","apellidoPProf","apellidoMProfesor","numTelProf","correoProf","especialidad","cargoActual","estatusProf","idCubo"
+"1001","Aide","Cruz","Barragán","1234567890","correoejemplo@gmail.com","Dra.","Profesor","Activo",5
+"1002","Arisaí Darío","Barragán ","López","1234567891","correoejemplo@gmail.com","Dr.","Director de Instituto","Activo",8
+"1003","Arturo","Benítez","Hernández","1234567892","correoejemplo@gmail.com","Dr.","Profesor","Activo",17
+"1004","Eliezer","Alcazar","Silva","1234567893","correoejemplo@gmail.com","M.C.C.","Profesor","Activo",23
+"1005","Enrique","García","Reyes","1234567894","correoejemplo@gmail.com","M.C.","Profesor","Activo",16
+"1006","Eric Melecio","Castro ","Leal","1234567895","correoejemplo@gmail.com","Dr.","Profesor","Activo",3
+"1007","Everardo de Jesús","Pacheco ","Antonio","1234567896","correoejemplo@gmail.com","M.T.E.","Jefe de Carrera","Activo",9
+"1008","Irving Ulises","Hernandez","Miguel","1234567897","correoejemplo@gmail.com","M.T.I.E.","Profesor","Activo",7
+"1009","José Alberto ","Cruz","Tolentino","1234567898","correoejemplo@gmail.com","M.C.A.C.","Profesor","Activo",11
+"1010","José Javier","Hernández","Barriga","1234567899","correoejemplo@gmail.com","Dr.","Profesor","Activo",31
+"1011","Lirio","Ruíz","Guerra","1234567900","correoejemplo@gmail.com","M.C.C.","Profesor","Activo",20
+"1012","Monica","Pérez","Meza","1234567901","correoejemplo@gmail.com","M.C.","Profesor","Activo",24
+"1013","Oscar Cuauhtémoc","Esperanza","Contreras","1234567902","correoejemplo@gmail.com","M.C.M.","Profesor","Activo",2
+"1014","Oswaldo Rey","Ávila","Barrón","1234567903","correoejemplo@gmail.com","M.I.T.I.","Profesor","Activo",18
+"1015","Silviana ","Juárez","Chalini","1234567904","correoejemplo@gmail.com","M.C.C.","Profesor","Activo",27

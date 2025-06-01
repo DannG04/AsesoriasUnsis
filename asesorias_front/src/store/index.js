@@ -14,6 +14,7 @@ export default createStore({
     state: {
         token: localStorage.getItem('token') || '', // Token de autenticación almacenado en localStorage
         user: user, // Información del usuario autenticado
+        profesor: null, // Información del profesor autenticado
         status: '' // Estado de la autenticación (e.g., 'loading', 'success', 'error')
     },
     
@@ -21,7 +22,8 @@ export default createStore({
     getters: {
         isLoggedIn: state => !!state.token, // Verifica si el usuario está autenticado
         authStatus: state => state.status, // Devuelve el estado de la autenticación
-        currentUser: state => state.user // Devuelve la información del usuario autenticado
+        currentUser: state => state.user, // Devuelve la información del usuario autenticado
+        currentProfesor: state => state.profesor // Devuelve la información del profesor autenticado
     },
 
     // Mutations para modificar el estado global
@@ -47,6 +49,9 @@ export default createStore({
         },
         SET_USER(state, user) {
             state.user = user; // Actualiza la información del usuario
+        },
+        SET_PROFESOR(state, profesor) {
+            state.profesor = profesor; // Actualiza la información del profesor
         }
     },
 
@@ -95,6 +100,22 @@ export default createStore({
                 localStorage.removeItem('user'); // Elimina la información del usuario
                 resolve();
             });
+        },
+        dataProfesor({ commit}) {
+            return new Promise((resolve, reject) => {
+                // Realiza una solicitud para obtener los datos del profesor
+                axios.get('/profesores')
+                    .then(response => {
+                        const profesor = response.data; // Obtiene la información del usuario
+                        commit('SET_PROFESOR', profesor); // Actualiza el estado global con la información del usuario
+                        localStorage.setItem('profesor', JSON.stringify(profesor)); // Almacena la información del usuario en localStorage
+                        resolve(response);
+                    })
+                    .catch(error => {
+                        reject(error); // Maneja errores de la solicitud
+                    });
+            });
+
         }
     }
 });

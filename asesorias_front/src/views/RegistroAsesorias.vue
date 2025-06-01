@@ -76,13 +76,59 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { useStore } from 'vuex';
+
+// Store
+const store = useStore();
+
+// Computed para obtener datos del profesor
+const currentProfesor = computed(() => store.getters.currentProfesor);
+
+// Función para cargar datos del profesor
+const cargarDatosProfesor = async () => {
+  try {
+    await store.dispatch('dataProfesor');
+    console.log('Datos del profesor cargados:', currentProfesor.value);
+  } catch (error) {
+    console.error('Error al cargar datos del profesor:', error);
+  }
+};
+
+// Cargar datos al montar el componente
+onMounted(async () => {
+  await cargarDatosProfesor();
+});
+
+// Función para calcular el periodo académico basado en la fecha actual
+const calcularPeriodoActual = () => {
+  const ahora = new Date();
+  const mes = ahora.getMonth() + 1; // getMonth() devuelve 0-11, por eso sumamos 1
+  const año = ahora.getFullYear();
+
+  // Los dos últimos dígitos del año actual y siguiente
+  const añoActual = año.toString().slice(-2);
+  const añoSiguiente = (año + 1).toString().slice(-2);
+
+  // Determinar el periodo basado en el mes
+  if (mes >= 2 && mes <= 7) {
+    // Febrero a Julio (semestre par)
+    return `Febrero-Julio ${añoActual}-${añoSiguiente}A`;
+  } else if (mes >= 8 && mes <= 12) {
+    // Agosto a Diciembre (semestre impar)
+    return `Agosto-Diciembre ${añoActual}-${añoSiguiente}B`;
+  } else {
+    // Enero (continúa el semestre impar del año anterior)
+    const añoAnterior = (año - 1).toString().slice(-2);
+    return `Agosto-Diciembre ${añoAnterior}-${añoActual}B`;
+  }
+};
 
 // Formulario reactivo
 const valid = ref(false);
 const formData = reactive({
-  profesor: 'Eren Jaeger López Cruz',
-  periodo: 'Febrero-Julio 25-26A',
+  nombreProfesor: '',
+  periodo: calcularPeriodoActual(), // Calcular automáticamente el periodo
   matricula: '2022060488',
   nombreAlumno: 'Daniel',
   apellidosAlumno: 'González Ruiz',
@@ -96,6 +142,21 @@ const formData = reactive({
   observaciones: ''
 });
 
+// Watcher para actualizar el nombre del profesor cuando cambien los datos
+watch(currentProfesor, (newProfesor) => {
+  console.log('Datos del profesor recibidos:', newProfesor); // Para debugging
+  if (newProfesor && newProfesor.nomProf) {
+    // Construir el nombre completo: nombre + apellido paterno + apellido materno (si existe)
+    const nombreCompleto = [
+      newProfesor.nomProf,
+      newProfesor.apellidoProf,
+      newProfesor.apellidoMProf || '' // El apellido materno puede ser nulo
+    ].filter(part => part && part.trim() !== '').join(' ');
+
+    formData.nombreProfesor = nombreCompleto;
+  }
+}, { immediate: true });
+
 // Reglas de validación
 const requiredRules = [v => !!v || 'Este campo es requerido'];
 const matriculaRules = [
@@ -103,11 +164,11 @@ const matriculaRules = [
   v => /^\d{9,10}$/.test(v) || 'La matrícula debe tener entre 9 y 10 dígitos'
 ];
 
-// Información de cabecera
-const infoHeader = [
-  { label: 'Nombre del Profesor', value: formData.profesor },
+// Información de cabecera - ahora como computed para que sea reactiva
+const infoHeader = computed(() => [
+  { label: 'Nombre del Profesor', value: formData.nombreProfesor || 'Cargando...' },
   { label: 'Periodo', value: formData.periodo }
-];
+]);
 
 // Lista de materias
 const materias = ['Materia1', 'Materia2', 'Materia3', 'Materia4', 'Materia5'];

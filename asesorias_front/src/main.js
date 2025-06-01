@@ -13,6 +13,8 @@ import 'vue-toastification/dist/index.css';
 // Configuración global de Axios
 // Establece la URL base para todas las solicitudes HTTP
 axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.headers.common['Content-Type'] = 'application/json'
+
 
 // Configurar interceptor para enviar el token en todas las solicitudes
 const token = localStorage.getItem('token');
