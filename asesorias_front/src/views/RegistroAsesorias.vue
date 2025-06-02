@@ -19,7 +19,7 @@
             <!-- Campo de texto estándar -->
             <v-text-field v-if="field.type === 'text' || field.type === 'date'" v-model="formData[field.model]"
               :type="field.type" variant="outlined" :rules="field.rules || requiredRules" class="bordered-field"
-              density="comfortable">
+              density="comfortable" :readonly="field.readonly">
             </v-text-field>
 
             <!-- Campo de tiempo doble -->
@@ -262,14 +262,14 @@ const formRows = [
   {
     fields: [
       { label: 'Matrícula', model: 'matricula', type: 'text', rules: matriculaRules },
-      { label: 'Nombre del alumno', model: 'nombreAlumno', type: 'text' },
-      { label: 'Apellidos del alumno', model: 'apellidosAlumno', type: 'text' }
+      { label: 'Nombre del alumno', model: 'nombreAlumno', type: 'text', readonly: true },
+      { label: 'Apellidos del alumno', model: 'apellidosAlumno', type: 'text', readonly: true }
     ]
   },
   {
     fields: [
-      { label: 'Licenciatura', model: 'licenciatura', type: 'text' },
-      { label: 'Grupo', model: 'grupo', type: 'text' }
+      { label: 'Licenciatura', model: 'licenciatura', type: 'text', readonly: true },
+      { label: 'Grupo', model: 'grupo', type: 'text', readonly: true }
     ]
   },
   {
