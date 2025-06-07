@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import Home from '../views/Home.vue';
+import EstadisticasView from '@/views/Estadisticas.vue';
 import RegistroAsesorias from '../views/RegistroAsesorias.vue';
 import store from '../store';
 
@@ -10,6 +11,7 @@ const LOGIN_ROUTE = '/login';
 const REGISTER_ROUTE = '/register';
 const HOME_ROUTE = '/home';
 const REGISTRO_ASESORIAS_ROUTE = '/registro-asesorias';
+const ESTADISTICAS_ROUTE = '/estadisticas';
 
 // Definir las rutas de la aplicación
 const routes = [
@@ -40,6 +42,11 @@ const routes = [
     name: 'RegistroAsesorias',
     component: RegistroAsesorias,
     meta: { requiresAuth: true } // Requiere autenticación
+  },  {
+    path: ESTADISTICAS_ROUTE,
+    name: 'EstadisticasView',
+    component: EstadisticasView,
+    meta: { requiresAuth: false } // Requiere autenticación
   }
 ];
 
