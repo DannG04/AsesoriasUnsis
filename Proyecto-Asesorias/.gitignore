@@ -32,16 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-### Configuration files with sensitive data ###
-# Exclude application.properties to keep database credentials and secrets safe
-src/main/resources/application.properties
-src/main/resources/application-*.properties
-target/classes/application.properties
 
-# Backup files
-*.bak
-*.backup
-
-# Log files
-*.log
-logs/
