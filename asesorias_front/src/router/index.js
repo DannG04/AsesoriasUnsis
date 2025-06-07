@@ -4,6 +4,7 @@ import Register from '../views/Register.vue';
 import Home from '../views/Home.vue';
 import EstadisticasView from '@/views/Estadisticas.vue';
 import RegistroAsesorias from '../views/RegistroAsesorias.vue';
+import PerfilView from '../views/Perfil.vue';
 import store from '../store';
 
 // Definir constantes para las rutas principales
@@ -12,6 +13,7 @@ const REGISTER_ROUTE = '/register';
 const HOME_ROUTE = '/home';
 const REGISTRO_ASESORIAS_ROUTE = '/registro-asesorias';
 const ESTADISTICAS_ROUTE = '/estadisticas';
+const PERFIL_ROUTE = '/perfil';
 
 // Definir las rutas de la aplicación
 const routes = [
@@ -42,10 +44,15 @@ const routes = [
     name: 'RegistroAsesorias',
     component: RegistroAsesorias,
     meta: { requiresAuth: true } // Requiere autenticación
-  },  {
+  },{
     path: ESTADISTICAS_ROUTE,
     name: 'EstadisticasView',
     component: EstadisticasView,
+    meta: { requiresAuth: false } // Requiere autenticación
+  },{
+    path: PERFIL_ROUTE,
+    name: 'PerfilView',
+    component: PerfilView,
     meta: { requiresAuth: false } // Requiere autenticación
   }
 ];
