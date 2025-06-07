@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas - sin autenticación
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/profesores").permitAll() // Temporal para debugging
+                        .requestMatchers("/profesores/**").permitAll() // Temporal para debugging
                         .requestMatchers("/estudiantes/**").permitAll() // Permitir acceso a endpoints de estudiantes
                         .requestMatchers("/carreras/**").permitAll() // Permitir acceso a endpoints de carreras
                         .requestMatchers("/usuarios/**").permitAll() // Permitir acceso a endpoints de usuarios
