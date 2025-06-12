@@ -29,7 +29,7 @@ export default {
   },
   // Método para mandar los datos de la asesoria al backend
   enviarAsesoria(asesoriaData) {
-    return apiClient.post('/asesorias', asesoriaData);
+    return apiClient.post('/asesorias/datos', asesoriaData);
   },
   
 }
