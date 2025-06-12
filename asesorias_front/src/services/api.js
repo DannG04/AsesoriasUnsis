@@ -27,6 +27,12 @@ export default {
   getMateriasPorProfesorId(profesorId) {
     return apiClient.get(`/profesores/${profesorId}/materias`);
   },
+
+  // Método para obtener las estadisticas de un profesor por su id
+  getEstadisticasPorProfesorId(profesorId) {
+    return apiClient.get(`/profesores/${profesorId}/estadisticas`);
+  },
+
   // Método para mandar los datos de la asesoria al backend
   enviarAsesoria(asesoriaData) {
     return apiClient.post('/asesorias/datos', asesoriaData);
