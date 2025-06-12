@@ -22,6 +22,14 @@ export default {
   getCarreraPorId(id) {
     return apiClient.get(`/carreras/${id}`);
   },
+
+  // Método para obtener las materias de un profesor por su id
+  getMateriasPorProfesorId(profesorId) {
+    return apiClient.get(`/profesores/${profesorId}/materias`);
+  },
+  // Método para mandar los datos de la asesoria al backend
+  enviarAsesoria(asesoriaData) {
+    return apiClient.post('/asesorias', asesoriaData);
+  },
   
-  // Agrega más métodos según tus endpoints
 }
