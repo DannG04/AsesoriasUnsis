@@ -50,4 +50,19 @@ public class ProfesorController {
         }
     }
 
+    @GetMapping("/{idProfesor}/estadisticas")
+    public ResponseEntity<?> obtenerEstadisticasPorProfesor(@PathVariable String idProfesor) {
+        try {
+            List<Object[]> estadisticas = profesorService.obtenerEstadisticasPorProfesor(idProfesor);
+            for (Object[] fila : estadisticas) {
+                System.out.println(Arrays.toString(fila));
+            }
+            return ResponseEntity.ok(estadisticas);
+        } catch (Exception e) {
+            System.err.println("Error al obtener las estadísticas del profesor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
+        }
+    }
+
 }
