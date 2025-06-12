@@ -50,4 +50,13 @@ public class ProfesorService {
             throw new RuntimeException("Error al obtener materias del profesor: " + e.getMessage());
         }
     }
+
+    /* Obtener las estadisticas del profesor */
+    public List<Object[]> obtenerEstadisticasPorProfesor(String idProfesor) {
+        try {
+            return profesorRepository.obtenerEstadisticas(idProfesor);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener las estadísticas del profesor: " + e.getMessage());
+        }
+    }
 }

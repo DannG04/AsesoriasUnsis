@@ -30,9 +30,9 @@
                 <div><IconifyIcon icon="material-symbols-light:book-2-outline" width="80" height="80" /></div>
             </div>
 
-            <!-- Licenciatura de alumnos más recurrentes -->
+            <!-- Carrera de alumnos más recurrentes -->
             <div class="stat-card">
-                <h3 class="stat-title">Licenciatura de alumnos más recurrentes</h3>
+                <h3 class="stat-title">Carrera de alumnos más recurrentes</h3>
                 <div class="stat-value">Informática</div>
                 <div><IconifyIcon icon="material-symbols-light:school-outline" width="80" height="80" /></div>
             </div>
