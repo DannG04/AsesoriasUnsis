@@ -14,11 +14,10 @@
         <div v-for="(row, rowIndex) in formRows" :key="rowIndex" class="d-flex mb-4">
           <div v-for="(field, fieldIndex) in row.fields" :key="fieldIndex" class="field-container"
             :class="[fieldIndex < row.fields.length - 1 ? 'mr-4' : '', field.customClass]">
-            <div class="field-label">{{ field.label }}:</div>            <!-- Campo de texto estándar -->
+            <div class="field-label">{{ field.label }}:</div> <!-- Campo de texto estándar -->
             <v-text-field v-if="field.type === 'text' || field.type === 'date'" v-model="formData[field.model]"
               :type="field.type" variant="outlined" :rules="field.rules || requiredRules" class="bordered-field"
-              density="comfortable" :readonly="field.readonly"
-              :maxlength="field.model === 'matricula' ? 10 : undefined"
+              density="comfortable" :readonly="field.readonly" :maxlength="field.model === 'matricula' ? 10 : undefined"
               @input="field.model === 'matricula' ? filtrarSoloNumeros($event) : null">
             </v-text-field>
 
@@ -32,17 +31,12 @@
               <div class="time-input-wrapper">
                 <v-text-field label="Hora final" v-model="formData.horaFinal" type="time" variant="outlined"
                   :rules="requiredRules" class="bordered-field" density="comfortable"></v-text-field>
-              </div>            </div>
+              </div>
+            </div>
 
             <!-- Menú desplegable -->
-            <v-select v-if="field.type === 'select'" 
-              v-model="formData[field.model]" 
-              :items="field.options"
-              variant="outlined" 
-              :rules="requiredRules"
-              class="bordered-field" 
-              density="comfortable"
-              bg-color="#B7C3E8">
+            <v-select v-if="field.type === 'select'" v-model="formData[field.model]" :items="field.options"
+              variant="outlined" :rules="requiredRules" class="bordered-field" density="comfortable" bg-color="#B7C3E8">
             </v-select>
 
             <!-- Radio buttons -->
@@ -74,6 +68,10 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import api from '@/services/api';
+import { useToast } from "vue-toastification";
+
+// Inicializar toast
+const toast = useToast();
 
 // Store
 const store = useStore();
@@ -92,7 +90,7 @@ const cargarMateriasProfesor = async (profesorId) => {
       value: materia[1],  // ID de la materia
       text: materia[0]    // Nombre de la materia
     }));
-    
+
     // Seleccionar automáticamente la primera materia
     if (materias.value.length > 0) {
       formData.materiaSeleccionada = materias.value[0].text;
@@ -107,7 +105,7 @@ const cargarMateriasProfesor = async (profesorId) => {
 const cargarDatosProfesor = async () => {
   try {
     await store.dispatch('dataProfesor');
-    
+
     // Cargar materias una vez que se tengan los datos del profesor
     if (currentProfesor.value?.idProfesor) {
       await cargarMateriasProfesor(currentProfesor.value.idProfesor);
@@ -193,7 +191,7 @@ watch(currentProfesor, async (newProfesor) => {
     ].filter(Boolean).join(' ');
 
     formData.nombreProfesor = nombreCompleto;
-    
+
     if (newProfesor.idProfesor) {
       await cargarMateriasProfesor(newProfesor.idProfesor);
     }
@@ -217,9 +215,9 @@ const obtenerDatosEstudiante = async (matricula) => {
 
       const responseCarrera = await api.getCarreraPorId(estudiante.idCarrera);
       formData.licenciatura = responseCarrera.data?.nombreCarrera || '';
-      
-      const grupoEstudiante = estudiante.idCarrera < 10 
-        ? `${estudiante.idSemestre}0${estudiante.idCarrera}` 
+
+      const grupoEstudiante = estudiante.idCarrera < 10
+        ? `${estudiante.idSemestre}0${estudiante.idCarrera}`
         : `${estudiante.idSemestre}${estudiante.idCarrera}`;
 
       formData.grupo = grupoEstudiante || '';
@@ -297,7 +295,7 @@ const formRows = computed(() => [
       { label: 'Licenciatura', model: 'licenciatura', type: 'text', readonly: true },
       { label: 'Grupo', model: 'grupo', type: 'text', readonly: true }
     ]
-  },  {
+  }, {
     fields: [
       { label: 'Fecha', model: 'fecha', type: 'date' },
       {
@@ -365,10 +363,10 @@ function agregarAlumno() {
 
 async function registrar() {
   try {
-    if(formData.observaciones == null || formData.observaciones == '') {
+    if (formData.observaciones == null || formData.observaciones == '') {
       formData.observaciones = 'Sin observaciones';
     }
-    
+
     //Obtiene los datos del formulario
     const datosRegistro = {
       matricula: formData.matricula,
@@ -380,15 +378,16 @@ async function registrar() {
       lugarAsesoria: formData.lugarAsesoria,
       observaciones: formData.observaciones
     };
-    
+
     console.log('Enviando datos de registro:', datosRegistro);
-    
+
     // Enviar datos al backend usando el método de la API
     const response = await api.enviarAsesoria(formData.matricula, formData.horaInicio, formData.horaFinal, formData.materiaSeleccionada, formData.lugarAsesoria, formData.observaciones, currentProfesor.value.idProfesor, formData.fecha);
-    
     console.log('Respuesta del servidor:', response.data);
-    alert('Asesoría registrada correctamente');
-    
+    // Mostrar mensaje de éxito
+    toast.success('Asesoría registrada', {
+      timeout: 5000
+    });
     //Limpiar el formulario después del registro exitoso
     formData.matricula = '';
     formData.nombreAlumno = '';
@@ -396,10 +395,10 @@ async function registrar() {
     formData.licenciatura = '';
     formData.grupo = '';
     formData.observaciones = '';
-    
   } catch (error) {
-    console.error('Error al registrar asesoría:', error);
-    alert('Error al registrar la asesoría. Por favor, intente nuevamente.');
+    toast.error('Error al registrar la asesoría. Por favor, inténtalo de nuevo.', {
+      timeout: 5000
+    });
   }
 }
 </script>
