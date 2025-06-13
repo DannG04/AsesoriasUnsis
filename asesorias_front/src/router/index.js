@@ -6,6 +6,7 @@ import EstadisticasView from '@/views/Estadisticas.vue';
 import RegistroAsesorias from '../views/RegistroAsesorias.vue';
 import PerfilView from '../views/Perfil.vue';
 import store from '../store';
+import HistorialAsesorias from "@/views/HistorialAsesorias.vue";
 
 // Definir constantes para las rutas principales
 const LOGIN_ROUTE = '/login';
@@ -14,6 +15,7 @@ const HOME_ROUTE = '/home';
 const REGISTRO_ASESORIAS_ROUTE = '/registro-asesorias';
 const ESTADISTICAS_ROUTE = '/estadisticas';
 const PERFIL_ROUTE = '/perfil';
+const HISTORIAL_ASESORIAS_ROUTE = '/historial-asesorias';
 
 // Definir las rutas de la aplicación
 const routes = [
@@ -44,12 +46,18 @@ const routes = [
     name: 'RegistroAsesorias',
     component: RegistroAsesorias,
     meta: { requiresAuth: true } // Requiere autenticación
-  },{
+  }, {
+    path: HISTORIAL_ASESORIAS_ROUTE,
+    name: 'HistorialAsesorias',
+    component: HistorialAsesorias,
+    meta: { requiresAuth: false }
+  },
+  {
     path: ESTADISTICAS_ROUTE,
     name: 'EstadisticasView',
     component: EstadisticasView,
     meta: { requiresAuth: false } // Requiere autenticación
-  },{
+},{
     path: PERFIL_ROUTE,
     name: 'PerfilView',
     component: PerfilView,
