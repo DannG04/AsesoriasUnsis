@@ -14,12 +14,12 @@
         <div v-for="(row, rowIndex) in formRows" :key="rowIndex" class="d-flex mb-4">
           <div v-for="(field, fieldIndex) in row.fields" :key="fieldIndex" class="field-container"
             :class="[fieldIndex < row.fields.length - 1 ? 'mr-4' : '', field.customClass]">
-            <div class="field-label">{{ field.label }}:</div>
-
-            <!-- Campo de texto estándar -->
+            <div class="field-label">{{ field.label }}:</div>            <!-- Campo de texto estándar -->
             <v-text-field v-if="field.type === 'text' || field.type === 'date'" v-model="formData[field.model]"
               :type="field.type" variant="outlined" :rules="field.rules || requiredRules" class="bordered-field"
-              density="comfortable" :readonly="field.readonly">
+              density="comfortable" :readonly="field.readonly"
+              :maxlength="field.model === 'matricula' ? 10 : undefined"
+              @input="field.model === 'matricula' ? filtrarSoloNumeros($event) : null">
             </v-text-field>
 
             <!-- Campo de tiempo doble -->
@@ -32,23 +32,18 @@
               <div class="time-input-wrapper">
                 <v-text-field label="Hora final" v-model="formData.horaFinal" type="time" variant="outlined"
                   :rules="requiredRules" class="bordered-field" density="comfortable"></v-text-field>
-              </div>
-            </div>
+              </div>            </div>
 
             <!-- Menú desplegable -->
-            <v-menu v-if="field.type === 'select'" offset-y>
-              <template v-slot:activator="{ props }">
-                <v-text-field v-model="formData[field.model]" variant="outlined" readonly :rules="requiredRules"
-                  v-bind="props" class="bordered-field" density="comfortable" append-icon="mdi-menu-down"
-                  bg-color="#B7C3E8"></v-text-field>
-              </template>
-              <v-list>
-                <v-list-item v-for="(option, i) in field.options" :key="i" :value="option"
-                  @click="formData[field.model] = option">
-                  <v-list-item-title>{{ option }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
+            <v-select v-if="field.type === 'select'" 
+              v-model="formData[field.model]" 
+              :items="field.options"
+              variant="outlined" 
+              :rules="requiredRules"
+              class="bordered-field" 
+              density="comfortable"
+              bg-color="#B7C3E8">
+            </v-select>
 
             <!-- Radio buttons -->
             <v-radio-group v-if="field.type === 'radio'" v-model="formData[field.model]"
@@ -86,11 +81,37 @@ const store = useStore();
 // Computed para obtener datos del profesor
 const currentProfesor = computed(() => store.getters.currentProfesor);
 
+// Estado para las materias
+const materias = ref([]);
+
+// Función para cargar materias del profesor
+const cargarMateriasProfesor = async (profesorId) => {
+  try {
+    const response = await api.getMateriasPorProfesorId(profesorId);
+    materias.value = response.data.map(materia => ({
+      value: materia[1],  // ID de la materia
+      text: materia[0]    // Nombre de la materia
+    }));
+    
+    // Seleccionar automáticamente la primera materia
+    if (materias.value.length > 0) {
+      formData.materiaSeleccionada = materias.value[0].text;
+    }
+  } catch (error) {
+    console.error('Error al obtener materias:', error);
+    materias.value = [];
+  }
+};
+
 // Función para cargar datos del profesor
 const cargarDatosProfesor = async () => {
   try {
     await store.dispatch('dataProfesor');
-    console.log('Datos del profesor cargados:', currentProfesor.value);
+    
+    // Cargar materias una vez que se tengan los datos del profesor
+    if (currentProfesor.value?.idProfesor) {
+      await cargarMateriasProfesor(currentProfesor.value.idProfesor);
+    }
   } catch (error) {
     console.error('Error al cargar datos del profesor:', error);
   }
@@ -157,38 +178,37 @@ const formData = reactive({
   fecha: obtenerFechaActual(), // Establecer fecha actual
   horaInicio: obtenerHoraActual(), // Establecer hora actual
   horaFinal: obtenerHoraMasUna(), // Establecer una hora después
-  materiaSeleccionada: 'Materia1',
+  materiaSeleccionada: '',
   lugarAsesoria: 'Biblioteca',
   observaciones: ''
 });
 
 // Watcher para actualizar el nombre del profesor cuando cambien los datos
-watch(currentProfesor, (newProfesor) => {
-  console.log('Datos del profesor recibidos:', newProfesor); // Para debugging
-  if (newProfesor && newProfesor.nomProf) {
-    // Construir el nombre completo: nombre + apellido paterno + apellido materno (si existe)
+watch(currentProfesor, async (newProfesor) => {
+  if (newProfesor?.nomProf) {
     const nombreCompleto = [
       newProfesor.nomProf,
       newProfesor.apellidoProf,
-      newProfesor.apellidoMProf || '' // El apellido materno puede ser nulo
-    ].filter(part => part && part.trim() !== '').join(' ');
+      newProfesor.apellidoMProf
+    ].filter(Boolean).join(' ');
 
     formData.nombreProfesor = nombreCompleto;
+    
+    if (newProfesor.idProfesor) {
+      await cargarMateriasProfesor(newProfesor.idProfesor);
+    }
   }
 }, { immediate: true });
 
 // Función para obtener datos del estudiante por matrícula
 const obtenerDatosEstudiante = async (matricula) => {
   try {
-    console.log('Consultando estudiante con matrícula:', matricula);
     const response = await api.getEstudiantePorMatricula(matricula);
 
     if (response.data) {
       const estudiante = response.data;
-      console.log('Datos del estudiante recibidos:', estudiante);
 
       // Actualizar los campos del formulario con los datos del estudiante
-      // Mapear los campos según el modelo del backend
       formData.nombreAlumno = estudiante.nomEst || '';
       formData.apellidosAlumno = [
         estudiante.apellidoPEst || '',
@@ -197,12 +217,10 @@ const obtenerDatosEstudiante = async (matricula) => {
 
       const responseCarrera = await api.getCarreraPorId(estudiante.idCarrera);
       formData.licenciatura = responseCarrera.data?.nombreCarrera || '';
-      let grupoEstudiante = '';
-      if (estudiante.idCarrera < 10) {
-        grupoEstudiante = `${estudiante.idSemestre}0${estudiante.idCarrera}` || '';
-      } else {
-        grupoEstudiante = `${estudiante.idSemestre}${estudiante.idCarrera}`;
-      }
+      
+      const grupoEstudiante = estudiante.idCarrera < 10 
+        ? `${estudiante.idSemestre}0${estudiante.idCarrera}` 
+        : `${estudiante.idSemestre}${estudiante.idCarrera}`;
 
       formData.grupo = grupoEstudiante || '';
     }
@@ -217,11 +235,22 @@ const obtenerDatosEstudiante = async (matricula) => {
   }
 };
 
+watch(() => formData.matricula, (newMatricula) => {
+  // Desabilitar el boton cuando la matricula no tenga 10 dígitos
+  actionButtons[1].disabled = !newMatricula || newMatricula.length !== 10;
+});
 // Watcher para la matrícula - ejecuta la consulta cuando tenga exactamente 10 dígitos
 watch(() => formData.matricula, (newMatricula) => {
   // Verificar que la matrícula tenga exactamente 10 dígitos numéricos
   if (newMatricula && /^\d{10}$/.test(newMatricula)) {
     obtenerDatosEstudiante(newMatricula);
+    if (formData.nombreAlumno && formData.apellidosAlumno) {
+      // Si se obtienen datos del estudiante, habilitar el botón de registrar
+      actionButtons[1].disabled = true;
+    } else {
+      // Si no se obtienen datos, deshabilitar el botón de registrar
+      actionButtons[1].disabled = false;
+    }
   } else if (newMatricula && newMatricula.length < 10) {
     // Si tiene menos de 10 dígitos, limpiar los campos del estudiante
     formData.nombreAlumno = '';
@@ -254,11 +283,8 @@ const infoHeader = computed(() => [
   { label: 'Periodo', value: formData.periodo }
 ]);
 
-// Lista de materias
-const materias = ['Materia1', 'Materia2', 'Materia3', 'Materia4', 'Materia5'];
-
-// Configuración de filas del formulario
-const formRows = [
+// Configuración de filas del formulario - actualizada para usar materias reactivas
+const formRows = computed(() => [
   {
     fields: [
       { label: 'Matrícula', model: 'matricula', type: 'text', rules: matriculaRules },
@@ -271,8 +297,7 @@ const formRows = [
       { label: 'Licenciatura', model: 'licenciatura', type: 'text', readonly: true },
       { label: 'Grupo', model: 'grupo', type: 'text', readonly: true }
     ]
-  },
-  {
+  },  {
     fields: [
       { label: 'Fecha', model: 'fecha', type: 'date' },
       {
@@ -284,7 +309,7 @@ const formRows = [
         label: 'Materia',
         model: 'materiaSeleccionada',
         type: 'select',
-        options: materias
+        options: materias.value?.map(materia => materia.text) || []
       }
     ]
   },
@@ -294,7 +319,7 @@ const formRows = [
         label: 'En sustitución de',
         model: 'lugarAsesoria',
         type: 'radio',
-        options: ['Biblioteca', 'Sala de computo'],
+        options: ['Biblioteca', 'Sala de computo', 'Otro'],
         customClass: 'radio-container'
       },
       {
@@ -306,7 +331,7 @@ const formRows = [
       }
     ]
   }
-];
+]);
 
 // Configuración de botones
 const actionButtons = [
@@ -320,20 +345,62 @@ const actionButtons = [
     label: 'Registrar',
     icon: 'mdi-content-save',
     action: registrar,
-    disabled: !valid.value
+    disabled: true
   }
 ];
 
 // Métodos
+function filtrarSoloNumeros(event) {
+  // Obtener solo los números del valor ingresado
+  const valor = event.target.value.replace(/\D/g, '');
+  // Limitar a máximo 10 dígitos
+  const valorLimitado = valor.slice(0, 10);
+  // Actualizar el valor en el modelo
+  formData.matricula = valorLimitado;
+}
+
 function agregarAlumno() {
-  console.log('Agregar alumno');
   alert('Funcionalidad para agregar alumno');
 }
 
-function registrar() {
-  console.log('Registrar asesoría');
-  console.log(formData);
-  alert('Asesoría registrada correctamente');
+async function registrar() {
+  try {
+    if(formData.observaciones == null || formData.observaciones == '') {
+      formData.observaciones = 'Sin observaciones';
+    }
+    
+    //Obtiene los datos del formulario
+    const datosRegistro = {
+      matricula: formData.matricula,
+      idProfesor: currentProfesor.value.idProfesor,
+      fecha: formData.fecha,
+      horaInicio: formData.horaInicio,
+      horaFinal: formData.horaFinal,
+      materiaSeleccionada: formData.materiaSeleccionada,
+      lugarAsesoria: formData.lugarAsesoria,
+      observaciones: formData.observaciones
+    };
+    
+    console.log('Enviando datos de registro:', datosRegistro);
+    
+    // Enviar datos al backend usando el método de la API
+    const response = await api.enviarAsesoria(formData.matricula, formData.horaInicio, formData.horaFinal, formData.materiaSeleccionada, formData.lugarAsesoria, formData.observaciones, currentProfesor.value.idProfesor, formData.fecha);
+    
+    console.log('Respuesta del servidor:', response.data);
+    alert('Asesoría registrada correctamente');
+    
+    //Limpiar el formulario después del registro exitoso
+    formData.matricula = '';
+    formData.nombreAlumno = '';
+    formData.apellidosAlumno = '';
+    formData.licenciatura = '';
+    formData.grupo = '';
+    formData.observaciones = '';
+    
+  } catch (error) {
+    console.error('Error al registrar asesoría:', error);
+    alert('Error al registrar la asesoría. Por favor, intente nuevamente.');
+  }
 }
 </script>
 
@@ -348,19 +415,34 @@ function registrar() {
 }
 
 .v-card {
-  /* Se elimina el borde de la tarjeta */
   border-radius: 8px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .bordered-field {
-  /* Se eliminan los bordes punteados */
   border-radius: 4px;
   padding: 4px 0;
   background-color: white;
   width: 100% !important;
-  /* Asegurar ancho completo y consistente */
+}
+
+.field-container {
+  margin-bottom: 8px;
+  flex-grow: 1;
+  position: relative;
+  width: 100%;
+}
+
+.radio-group {
+  padding: 8px 0;
+  background-color: white;
+}
+
+.action-btn {
+  background-color: #B7C3E8;
+  color: #333;
+  font-weight: 500;
 }
 
 .field-label {
@@ -369,34 +451,12 @@ function registrar() {
   font-size: 0.875rem;
 }
 
-.field-container {
-  margin-bottom: 8px;
-  flex-grow: 1;
-  position: relative;
-  width: 100%;
-  /* Asegura que el contenedor ocupe el espacio disponible */
-}
-
-.radio-group {
-  /* Se eliminan los bordes punteados */
-  padding: 8px 0;
-  background-color: white;
-}
-
-.action-btn {
-  /* Se eliminan los bordes punteados */
-  background-color: #B7C3E8;
-  color: #333;
-  font-weight: 500;
-}
-
 /* Para mantener consistencia en los mensajes de error */
 :deep(.v-messages) {
   min-height: 20px;
   height: 20px;
   overflow: hidden;
   position: absolute;
-  /* Posiciona los mensajes de error de forma absoluta */
 }
 
 :deep(.v-field__field) {
@@ -405,19 +465,16 @@ function registrar() {
 
 :deep(.v-input) {
   width: 100% !important;
-  /* Forzar que todos los inputs ocupen el 100% del contenedor padre */
 }
 
 /* Mantener altura fija para los campos */
 .field-container {
   height: 90px;
-  /* Altura fija para todos los contenedores de campo */
 }
 
 /* Especial para el contenedor de tiempo */
 .time-field-container {
   height: 110px;
-  /* Más alto para acomodar dos filas de campos */
 }
 
 /* Especial para el contenedor de radio buttons */
@@ -428,7 +485,6 @@ function registrar() {
 /* Contenedor de observaciones */
 .textarea-container {
   height: 120px;
-  /* Más alto para el área de texto */
 }
 
 /* Ajuste para el contenedor de hora */

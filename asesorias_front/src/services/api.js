@@ -22,6 +22,39 @@ export default {
   getCarreraPorId(id) {
     return apiClient.get(`/carreras/${id}`);
   },
+
+  // Método para obtener las materias de un profesor por su id
+  getMateriasPorProfesorId(profesorId) {
+    return apiClient.get(`/profesores/${profesorId}/materias`);
+  },
+
+  // Método para obtener las estadisticas de un profesor por su id
+  getEstadisticasPorProfesorId(profesorId) {
+    return apiClient.get(`/profesores/${profesorId}/estadisticas`);
+  },
+
+  // Método para mandar los datos de la asesoria al backend
+  enviarAsesoria(matricula, horaInicio, horaFinal, materiaSeleccionada, lugarAsesoria, observaciones, idProfesor, fecha) {
+    console.log("Enviando datos de la asesoría:", {
+      matricula,
+      horaInicio,
+      horaFinal,
+      materiaSeleccionada,
+      lugarAsesoria,
+      observaciones,
+      idProfesor,
+      fecha
+    });
+      return apiClient.post('/asesorias/datos', {
+    matricula,
+    horaInicio,
+    horaFinal,
+    materiaSeleccionada,
+    lugarAsesoria,
+    observaciones,
+    idProfesor,
+    fecha
+  });
+  },
   
-  // Agrega más métodos según tus endpoints
 }
