@@ -34,8 +34,27 @@ export default {
   },
 
   // Método para mandar los datos de la asesoria al backend
-  enviarAsesoria(asesoriaData) {
-    return apiClient.post('/asesorias/datos', asesoriaData);
+  enviarAsesoria(matricula, horaInicio, horaFinal, materiaSeleccionada, lugarAsesoria, observaciones, idProfesor, fecha) {
+    console.log("Enviando datos de la asesoría:", {
+      matricula,
+      horaInicio,
+      horaFinal,
+      materiaSeleccionada,
+      lugarAsesoria,
+      observaciones,
+      idProfesor,
+      fecha
+    });
+      return apiClient.post('/asesorias/datos', {
+    matricula,
+    horaInicio,
+    horaFinal,
+    materiaSeleccionada,
+    lugarAsesoria,
+    observaciones,
+    idProfesor,
+    fecha
+  });
   },
   
 }

@@ -29,7 +29,8 @@ public class Asesoria {
     private int idMateria;
 
     @Column(name = "idhorario", nullable = false)
-    private int idHorario;    // Constructores
+    private int idHorario;
+        // Constructores
     public Asesoria() {
     }
 

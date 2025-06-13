@@ -384,7 +384,7 @@ async function registrar() {
     console.log('Enviando datos de registro:', datosRegistro);
     
     // Enviar datos al backend usando el método de la API
-    const response = await api.enviarAsesoria(datosRegistro);
+    const response = await api.enviarAsesoria(formData.matricula, formData.horaInicio, formData.horaFinal, formData.materiaSeleccionada, formData.lugarAsesoria, formData.observaciones, currentProfesor.value.idProfesor, formData.fecha);
     
     console.log('Respuesta del servidor:', response.data);
     alert('Asesoría registrada correctamente');
