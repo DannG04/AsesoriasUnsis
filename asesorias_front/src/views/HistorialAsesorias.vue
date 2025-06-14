@@ -55,6 +55,7 @@
             :items-per-page="10"
             :items-per-page-options="[5, 10, 25, 50]"
             show-current-page
+            :loading="loading"
         >
           <!-- Slot para acciones -->
           <template v-slot:[`item.actions`]="{ item }">
@@ -153,6 +154,23 @@
               class="mb-4"
           />
         </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn
+              color="primary"
+              variant="flat"
+              @click="aplicarFiltro"
+          >
+            Aplicar
+          </v-btn>
+          <v-btn
+              color="grey"
+              variant="flat"
+              @click="showFilterDialog = false"
+          >
+            Cancelar
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -176,9 +194,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import {ref, computed, onMounted, watch} from 'vue'
 import { useStore } from 'vuex';
 import html2pdf from "html2pdf.js";
+import api from "@/services/api";
+/*import { format } from 'date-fns';
+import { es } from 'date-fns/locale';*/
+
 // Estados reactivos
 const deleteDialog = ref(false)
 const snackbar = ref(false)
@@ -186,6 +208,11 @@ const snackbarText = ref('')
 const snackbarColor = ref('success')
 const showFilterDialog = ref(false)
 const searchQuery = ref('') // Añadido para la búsqueda por matrícula o nombre
+const loading = ref(false)
+
+// Store y datos del profesor
+const store = useStore();
+const currentProfesor = computed(() => store.getters.currentProfesor);
 
 // Estudiante seleccionado para eliminar
 const studentToDelete = ref(null)
@@ -206,70 +233,8 @@ const headers = ref([
   { title: 'ACCIONES', key: 'actions', sortable: false, width: '120px', align: 'center' } // Reducido de 160px a 120px
 ])
 
-
-const students = ref([
-  {
-    matricula: '2022060064',
-    alumno: 'Elisa Sánchez',
-    carrera: 'Informática',
-    semestre: 6,
-    materia: 'Materia 3',
-    fecha: '03/03/2025',
-    obs: '',
-    periodo: '2024-2025A'
-  },
-  {
-    matricula: '2022060233',
-    alumno: 'Mayra Castellanos',
-    carrera: 'Informática',
-    semestre: 6,
-    materia: 'Materia 1',
-    fecha: '05/03/2025',
-    obs: '',
-    periodo: '2024-2025A'
-  },
-  {
-    matricula: '2022060488',
-    alumno: 'Daniel González',
-    carrera: 'Informática',
-    semestre: 6,
-    materia: 'Materia 1',
-    fecha: '05/03/2025',
-    obs: '',
-    periodo: '2024-2025A'
-  },
-  {
-    matricula: '2022060197',
-    alumno: 'Gael Pinacho',
-    carrera: 'Informática',
-    semestre: 6,
-    materia: 'Materia 4',
-    fecha: '06/03/2025',
-    obs: '',
-    periodo: '2024-2025B'
-  },
-  {
-    matricula: '2023130092',
-    alumno: 'Uriel Jiménez',
-    carrera: 'Odontología',
-    semestre: 2,
-    materia: 'Materia 5',
-    fecha: '07/03/2025',
-    obs: '',
-    periodo: '2023-2024A'
-  },
-  {
-    matricula: '2023010449',
-    alumno: 'Ximena Ibañes',
-    carrera: 'Enfermería',
-    semestre: 4,
-    materia: 'Materia 6',
-    fecha: '04/03/2025',
-    obs: '',
-    periodo: '2023-2024B'
-  }
-])
-
+// Lista de estudiantes - será reemplazada por datos reales de la API
+const students = ref([])
 
 const periodos = ref([
   '2024-2025A',
@@ -281,13 +246,6 @@ const periodos = ref([
 // Computed para estudiantes filtrados
 const filteredStudents = computed(() => {
   let result = [...students.value]
-
-  // Filtrar por periodo seleccionado
-  if (selectedPeriodo.value) {
-    result = result.filter(student =>
-      student.periodo === selectedPeriodo.value
-    );
-  }
 
   // Filtrar por búsqueda
   if (searchQuery.value) {
@@ -319,9 +277,81 @@ const deleteStudent = () => {
   studentToDelete.value = null
 }
 
-// Store y datos del profesor
-const store = useStore();
-const currentProfesor = computed(() => store.getters.currentProfesor);
+// Función para cargar el historial de asesorías
+const cargarHistorialAsesorias = async (idProfesor, periodo) => {
+  loading.value = true;
+  try {
+    console.log(`Cargando asesorías para profesor ID: ${idProfesor} en periodo: ${periodo}`);
+    const respuesta = await api.getAsesoriasPorProfesorYCicloValido(idProfesor, periodo);
+    console.log('Datos recibidos:', respuesta.data);
+
+    // Transformar los datos al formato que espera la tabla
+    students.value = respuesta.data.map(asesoria => ({
+      matricula: asesoria.idest,
+      alumno: asesoria.nombreest,
+      carrera: asesoria.carreraest,
+      semestre: asesoria.semestreest,
+      materia: asesoria.matest,
+      fecha: asesoria.fechaest,
+      obs: asesoria.obsest || ''
+    }));
+
+    showSnackbar('Datos cargados correctamente', 'success');
+  } catch (error) {
+    console.error('Error al cargar el historial de asesorías:', error);
+    showSnackbar('Error al cargar los datos', 'error');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Función para formatear fechas
+/*const formatearFecha = (fechaString) => {
+  if (!fechaString) return '';
+
+  try {
+    const fecha = new Date(fechaString);
+    return format(fecha, 'dd/MM/yyyy', { locale: es });
+  } catch (error) {
+    console.error('Error al formatear fecha:', error);
+    return fechaString;
+  }
+};*/
+
+// Función para aplicar el filtro de periodo
+const aplicarFiltro = async () => {
+  if (selectedPeriodo.value && currentProfesor.value?.idProfesor) {
+    await cargarHistorialAsesorias(currentProfesor.value.idProfesor, selectedPeriodo.value);
+  }
+  showFilterDialog.value = false;
+};
+
+// Cargar datos del profesor
+const cargarDatosProfesor = async () => {
+  try {
+    await store.dispatch('dataProfesor');
+
+    // Cargar historial de asesorías una vez que se tengan los datos del profesor
+    if (currentProfesor.value?.idProfesor) {
+      await cargarHistorialAsesorias(currentProfesor.value.idProfesor, Periodo.value);
+    }
+  } catch (error) {
+    console.error('Error al cargar datos del profesor:', error);
+    showSnackbar('Error al cargar datos del profesor', 'error');
+  }
+};
+
+onMounted(async () => {
+  // Cargar datos del profesor al montar el componente
+  await cargarDatosProfesor();
+});
+
+// Observar cambios en selectedPeriodo
+watch(selectedPeriodo, (newPeriodo) => {
+  if (newPeriodo) {
+    console.log(`Periodo seleccionado: ${newPeriodo}`);
+  }
+});
 
 // Computed para el nombre completo del profesor
 const profesorNombre = computed(() => {
@@ -411,7 +441,6 @@ const exportToPDF = () => {
   html2pdf().from(printTable).set(options).save();
   showSnackbar('PDF exportado correctamente', 'success');
 }
-
 
 const showSnackbar = (text, color = 'success') => {
   snackbarText.value = text

@@ -67,5 +67,14 @@ export default {
       nuevaContrasena
     });
   },
-  
+
+  //Metodo para obtener las asesorias por id del profesor y por ciclo
+    getAsesoriasPorProfesorYCicloValido(IdProfesor, cicloValido) {
+        return apiClient.get(`/api/asesorias/historial`, {
+        params: {
+          idProf : IdProfesor,
+          ciclo : cicloValido }
+        });
+    },
+
 }
