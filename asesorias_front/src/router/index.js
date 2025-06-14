@@ -17,6 +17,7 @@ const REGISTRO_ASESORIAS_ROUTE = '/registro-asesorias';
 const ESTADISTICAS_ROUTE = '/estadisticas';
 const PERFIL_ROUTE = '/perfil';
 const HISTORIAL_ASESORIAS_ROUTE = '/historial-asesorias';
+const CAMBIO_CONTRASENA_ROUTE = '/cambio-contrasena';
 
 // Definir las rutas de la aplicación
 const routes = [
@@ -62,6 +63,12 @@ const routes = [
     path: PERFIL_ROUTE,
     name: 'PerfilView',
     component: PerfilView,
+    meta: { requiresAuth: false } // Requiere autenticación
+  },
+  {
+    path: CAMBIO_CONTRASENA_ROUTE,
+    name: 'CambioContraseña',
+    component: CambioContraseña,
     meta: { requiresAuth: false } // Requiere autenticación
   }
 ];
