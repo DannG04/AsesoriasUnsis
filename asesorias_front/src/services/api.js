@@ -32,7 +32,9 @@ export default {
   getEstadisticasPorProfesorId(profesorId) {
     return apiClient.get(`/profesores/${profesorId}/estadisticas`);
   },
-
+  getDatosPerfilProfesor() {
+    return apiClient.get('/profesores/datos');
+  },
   // Método para mandar los datos de la asesoria al backend
   enviarAsesoria(matricula, horaInicio, horaFinal, materiaSeleccionada, lugarAsesoria, observaciones, idProfesor, fecha) {
     console.log("Enviando datos de la asesoría:", {

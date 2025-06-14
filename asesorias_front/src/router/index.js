@@ -61,7 +61,7 @@ const routes = [
 },{
     path: PERFIL_ROUTE,
     name: 'PerfilView',
-    component: CambioContraseña,
+    component: PerfilView,
     meta: { requiresAuth: false } // Requiere autenticación
   }
 ];

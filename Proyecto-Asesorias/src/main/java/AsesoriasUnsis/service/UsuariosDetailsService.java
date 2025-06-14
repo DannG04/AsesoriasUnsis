@@ -34,7 +34,7 @@ public class UsuariosDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuarios usuario = usuarioRepository.findByUsuario(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Alumno no encontrado: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Profesor no encontrado: " + username));
         idProfesor = usuario.getIdProfesor().toString();
         // Devuelve un objeto UserDetails con el nombre de usuario, contraseña y roles
         // vacíos

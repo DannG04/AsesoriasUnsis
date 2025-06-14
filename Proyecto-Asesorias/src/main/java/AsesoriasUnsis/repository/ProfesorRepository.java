@@ -41,6 +41,15 @@ public interface ProfesorRepository extends JpaRepository<Profesor, String>{
     /* Obtener las estadisticas del profesor por su ID */
     @Query(value = "SELECT * FROM estadisticas(:idProfesor)",
            nativeQuery = true)
-    List<Object[] >obtenerEstadisticas(@Param("idProfesor") String idProfesor);
+    List<Object[] >obtenerEstadisticas(@Param("idProfesor") String idProfesor);    /**
+     * Obtiene los datos del profesor para el perfil del usuario.
+     * 
+     * @param idProfesor El ID del profesor cuyas datos se buscan.
+     * @return Lista con los datos del perfil del profesor de diferentes entidades.
+     */
+    @Query(value = "SELECT * FROM datos_perfil(:idProfesor)",
+           nativeQuery = true)
+    List<Object[]> obtenerDatosProfesor(@Param("idProfesor") String idProfesor);
+       
 
 }
