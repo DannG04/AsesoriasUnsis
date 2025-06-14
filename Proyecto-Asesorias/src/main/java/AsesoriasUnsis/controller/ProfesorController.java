@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import AsesoriasUnsis.model.PerfilProfesorDTO;
 import AsesoriasUnsis.model.Profesor;
 import AsesoriasUnsis.service.ProfesorService;
 
@@ -62,6 +63,19 @@ public class ProfesorController {
             System.err.println("Error al obtener las estadísticas del profesor: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error: " + e.getMessage());
+        }
+    }    
+    
+
+    @GetMapping("/datos")
+    public ResponseEntity<List<PerfilProfesorDTO>> obtenerDatosProfesor() {
+        try {
+            List<PerfilProfesorDTO> datos = profesorService.obtenerDatosPerfilProfesor();
+            System.out.println("Datos del profesor: " + datos);
+            return ResponseEntity.ok(datos);
+        } catch (Exception e) {
+            System.err.println("Error al obtener datos del profesor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

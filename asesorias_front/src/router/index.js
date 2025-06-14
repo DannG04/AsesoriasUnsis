@@ -7,6 +7,7 @@ import RegistroAsesorias from '../views/RegistroAsesorias.vue';
 import PerfilView from '../views/Perfil.vue';
 import store from '../store';
 import HistorialAsesorias from "@/views/HistorialAsesorias.vue";
+import CambioContraseña  from '@/views/CambioContraseña.vue';
 
 // Definir constantes para las rutas principales
 const LOGIN_ROUTE = '/login';

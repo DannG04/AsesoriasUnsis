@@ -70,15 +70,7 @@
         </div>
         </div>
         <!--Idioma-->
-        <div class="con-info-specific">
-          <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M15.327 22q-2.288 0-4.037-1.338T8.929 17.23q.76.011 1.437-.11q.676-.121 1.33-.39h5.177q.044-.381.067-.745q.022-.363.022-.744q0-.311-.022-.653q-.023-.342-.067-.666h-1.436q.188-.239.353-.479t.324-.521h4.332q-.5-1.039-1.354-1.813q-.853-.774-1.96-1.15q.049-.25.077-.506t.022-.525q2.092.611 3.43 2.36Q22 13.04 22 15.327q0 2.78-1.946 4.727Q18.107 22 15.327 22m-1.221-1.204q-.425-.75-.716-1.513q-.292-.764-.454-1.552h-2.709q.54 1.182 1.555 2t2.324 1.065m1.221.139q.53-.743.859-1.548q.328-.806.516-1.656h-2.75q.189.85.51 1.655q.32.806.865 1.548m1.221-.138q1.31-.248 2.334-1.065t1.564-2h-2.733q-.182.788-.461 1.552q-.279.763-.704 1.513m1.325-4.065h2.95q.088-.327.133-.68q.044-.353.044-.724t-.044-.724t-.133-.68h-2.95q.044.323.066.665q.022.34.022.664q0 .378-.022.74q-.022.36-.066.739m-9.199-1.385q-2.78 0-4.727-1.946T2 8.674t1.946-4.727T8.672 2t4.727 1.946t1.947 4.726t-1.946 4.727t-4.726 1.947m.003-1q2.348 0 4.009-1.664q1.66-1.664 1.66-4.013q0-2.348-1.664-4.008Q11.017 3 8.669 3T4.66 4.664Q3 6.33 3 8.677t1.664 4.009q1.665 1.66 4.013 1.66m-2.37-6.365q.291 0 .511-.21t.22-.52t-.22-.521t-.52-.21t-.51.21q-.211.209-.211.52t.21.52t.52.21m2.376 4.093q.979 0 1.791-.454t1.315-1.196l-6.231-.02q.502.763 1.324 1.216q.822.454 1.8.454m2.376-4.092q.29 0 .51-.21t.22-.52t-.22-.521t-.52-.21t-.51.21t-.211.52t.21.52t.52.21m-2.384.693" />
-          </svg>
-          <div class="acomodar-info-specific">
-            <span class="style-label">Idioma</span>
-            <span>{{ idioma }}</span>
-          </div>
-        </div>
+        
       </div>
       <div class="justo">
         <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24">
@@ -107,6 +99,9 @@
 </template>
 
 <script>
+import api from '@/services/api'
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'PerfilView',
   data() {
@@ -117,20 +112,81 @@ export default {
       edificio: '',
       cubiculo: '',
       idioma: '',
-      descripcion: ''
+      descripcion: '',
+      datos: [] // Para almacenar los datos de la API
     }
   },
+  computed: {
+    ...mapGetters(['currentProfesor'])
+  },
   //Esto es en lo que se obtienen los datos del perfil
-  mounted() {
-    this.nombre = 'Eren Jaeger López Cruz'
-    this.correo = 'esto_es_un_ejemplo@gmail.com'
-    this.rol = 'Profesor'
-    this.edificio = 'Instituto de Informática'
-    this.cubiculo = '17'
-    this.idioma = 'Español'
-    this.descripcion = 'Doctor en Ciencias de la Computación especializado en Inteligencia Artificial. Imparto cursos de Algoritmos y Minería de Datos. 15 años de experiencia docente. Disponible para asesorías en proyectos de investigación y tesis relacionadas con IA y análisis de datos.'
+  async mounted() {    
+    // Primero obtener el nombre del store si está disponible
+    this.obtenerNombreDelStore();
+    // Luego llamar a la API para los demás datos
+    await this.obtenerDatosPerfil();
+  },  
+  methods: {
+    obtenerNombreDelStore() {
+      // Obtener el nombre del profesor desde el store de Vuex
+      if (this.currentProfesor?.nomProf) {
+        const nombreCompleto = [
+          this.currentProfesor.nomProf,
+          this.currentProfesor.apellidoProf,
+          this.currentProfesor.apellidoMProf
+        ].filter(Boolean).join(' ');
+        
+        this.nombre = nombreCompleto;
+        console.log('Nombre obtenido del store:', this.nombre);
+      } else {
+        console.log('No hay datos del profesor en el store');
+      }
+    },
+    async obtenerDatosPerfil() {
+      try {
+        const response = await api.getDatosPerfilProfesor();        
+        // Los datos vienen en response.data como array
+        const datos = response.data || response;
+        console.log('Datos procesados:', datos);
+        
+        // Almacenar los datos completos
+        this.datos = datos;
+          // Los datos vienen como array, tomar el primer elemento
+        if (Array.isArray(datos) && datos.length > 0) {
+          const perfilData = datos[0];
+          console.log('Datos del perfil:', perfilData);          
+          
+          // Solo sobrescribir el nombre si no lo tenemos del store
+          if (!this.nombre) {
+            this.nombre = perfilData.nombre || perfilData.name || '';
+          }
+          
+          this.correo = perfilData.correo || perfilData.email || perfilData.imail || '';
+          this.rol = perfilData.rol || perfilData.role || '';
+          this.edificio = perfilData.edificio || perfilData.edifisio || '';
+          this.cubiculo = perfilData.cubiculo || perfilData.qbiqlo || '';
+          this.idioma = perfilData.idioma || perfilData.language || '';
+          this.descripcion = perfilData.descripcion || perfilData.descripsion || '';
+          
+          console.log('Datos asignados:', {
+            nombre: this.nombre,
+            correo: this.correo,
+            rol: this.rol,
+            edificio: this.edificio,
+            cubiculo: this.cubiculo,
+            idioma: this.idioma,
+            descripcion: this.descripcion
+          });
+        } else {
+          console.warn('Los datos no vienen como array o están vacíos:', datos);
+        }
+      } catch (error) {
+        console.error('Error al obtener los datos del perfil:', error);
+      }
+    }
   }
 }
+
 </script>
 
 <style scoped>
