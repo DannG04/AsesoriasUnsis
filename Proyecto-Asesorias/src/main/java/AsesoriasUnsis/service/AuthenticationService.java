@@ -69,6 +69,48 @@ public class AuthenticationService {
     }
 
     /**
+     * Cambia la contraseña de un usuario existente.
+     * 
+     * @param usuario           Nombre de usuario.
+     * @param contrasenaActual  Contraseña actual del usuario.
+     * @param nuevaContrasena   Nueva contraseña a establecer.
+     * @throws IllegalArgumentException Si algún parámetro es inválido.
+     * @throws RuntimeException         Si el usuario no existe o la contraseña actual es incorrecta.
+     */
+    public void cambiarContrasena(String usuario, String contrasenaActual, String nuevaContrasena) {
+        // Validar entrada
+        if (usuario == null || usuario.isEmpty()) {
+            throw new IllegalArgumentException("El usuario no puede estar vacío.");
+        }
+        if (contrasenaActual == null || contrasenaActual.isEmpty()) {
+            throw new IllegalArgumentException("La contraseña actual no puede estar vacía.");
+        }
+        if (nuevaContrasena == null || nuevaContrasena.isEmpty()) {
+            throw new IllegalArgumentException("La nueva contraseña no puede estar vacía.");
+        }
+        if (nuevaContrasena.length() < 8) {
+            throw new IllegalArgumentException("La nueva contraseña debe tener al menos 8 caracteres.");
+        }
+
+        // Buscar usuario
+        java.util.Optional<Usuarios> usuarioOpt = alumnoRepository.findByUsuario(usuario);
+        if (!usuarioOpt.isPresent()) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+
+        Usuarios usuarioEntity = usuarioOpt.get();
+
+        // Verificar contraseña actual
+        if (!passwordEncoder.matches(contrasenaActual, usuarioEntity.getUserPassword())) {
+            throw new RuntimeException("La contraseña actual es incorrecta");
+        }
+
+        // Encriptar nueva contraseña y guardar
+        usuarioEntity.setUserPassword(passwordEncoder.encode(nuevaContrasena));
+        alumnoRepository.save(usuarioEntity);
+    }
+
+    /**
      * Excepción personalizada para manejar usuarios duplicados.
      */
     public static class UserAlreadyExistsException extends RuntimeException {

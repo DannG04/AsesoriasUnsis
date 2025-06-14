@@ -11,9 +11,32 @@
             </div>
             <div class="derecha">
                 <label>{{ usuario }}</label>
-                <input class="input" type="password" placeholder="Contraseña"/>
-                <input class="input" type="password" placeholder="Nueva Contraseña"/>
-                <input class="input" type="password" placeholder="Confirmar Contraseña"/>
+                <input 
+                  v-model="form.contrasenaActual"
+                  class="input" 
+                  type="password" 
+                  placeholder="Contraseña Actual"
+                  :class="{ 'input-error': errors.contrasenaActual }"
+                />
+                <span v-if="errors.contrasenaActual" class="error-text">{{ errors.contrasenaActual }}</span>
+                
+                <input 
+                  v-model="form.nuevaContrasena"
+                  class="input" 
+                  type="password" 
+                  placeholder="Nueva Contraseña"
+                  :class="{ 'input-error': errors.nuevaContrasena }"
+                />
+                <span v-if="errors.nuevaContrasena" class="error-text">{{ errors.nuevaContrasena }}</span>
+                
+                <input 
+                  v-model="form.confirmarContrasena"
+                  class="input" 
+                  type="password" 
+                  placeholder="Confirmar Contraseña"
+                  :class="{ 'input-error': errors.confirmarContrasena }"
+                />
+                <span v-if="errors.confirmarContrasena" class="error-text">{{ errors.confirmarContrasena }}</span>
             </div>
           </div>
           <div class="parrafo">
@@ -24,24 +47,149 @@
           </div>
           <!-- Botones de acción -->
           <div class="botones">
-            <button class="boton-guardar">Guardar cambios</button>
-            <button class="boton-cancelar">Cancelar</button>
+            <button class="boton-guardar" @click="cambiarContrasena" :disabled="loading">
+              {{ loading ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+            <button class="boton-cancelar" @click="irAPerfil">Cancelar</button>
           </div>
         </div>
     </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import api from '@/services/api'
+import { useToast } from "vue-toastification"
+
 export default {
-  name: 'PerfilView',
+  name: 'cambioContraseña',
   data() {
     return {
-      usuario: ''
+      usuario: '',
+      loading: false,
+      form: {
+        contrasenaActual: '',
+        nuevaContrasena: '',
+        confirmarContrasena: ''
+      },
+      errors: {}
     }
-},
-    mounted() {
-        this.usuario = '2022060488li'
+  },
+  computed: {
+    ...mapGetters(['currentUser', 'currentProfesor'])
+  },
+  setup() {
+    const toast = useToast()
+    return { toast }
+  },
+  mounted() {
+    // Obtener el usuario actual del store
+    if (this.currentUser?.usuario) {
+      this.usuario = this.currentUser.usuario
+    } else if (this.currentProfesor?.nomProf) {
+      // Si no hay usuario en el store, usar datos del profesor
+      this.usuario = this.currentProfesor.nomProf
+    } else {
+      // Fallback temporal
+      this.usuario = '2022060488li'
     }
+  },
+  methods: {
+    validateForm() {
+      this.errors = {}
+      let isValid = true
+
+      // Validar contraseña actual
+      if (!this.form.contrasenaActual) {
+        this.errors.contrasenaActual = 'La contraseña actual es requerida'
+        isValid = false
+      }
+
+      // Validar nueva contraseña
+      if (!this.form.nuevaContrasena) {
+        this.errors.nuevaContrasena = 'La nueva contraseña es requerida'
+        isValid = false
+      } else if (this.form.nuevaContrasena.length < 8) {
+        this.errors.nuevaContrasena = 'La contraseña debe tener al menos 8 caracteres'
+        isValid = false
+      } else if (!this.validatePasswordStrength(this.form.nuevaContrasena)) {
+        this.errors.nuevaContrasena = 'La contraseña debe cumplir con los requisitos de seguridad'
+        isValid = false
+      }
+
+      // Validar confirmación
+      if (!this.form.confirmarContrasena) {
+        this.errors.confirmarContrasena = 'Debe confirmar la nueva contraseña'
+        isValid = false
+      } else if (this.form.nuevaContrasena !== this.form.confirmarContrasena) {
+        this.errors.confirmarContrasena = 'Las contraseñas no coinciden'
+        isValid = false
+      }
+
+      return isValid
+    },
+
+    validatePasswordStrength(password) {
+      // Al menos 1 dígito, 1 minúscula, 1 mayúscula, 1 carácter especial
+      const hasDigit = /\d/.test(password)
+      const hasLower = /[a-z]/.test(password)
+      const hasUpper = /[A-Z]/.test(password)
+      const hasSpecial = /[.$ ? / * \- + # @]/.test(password)
+      
+      return hasDigit && hasLower && hasUpper && hasSpecial
+    },
+
+    async cambiarContrasena() {
+      if (!this.validateForm()) {
+        return
+      }
+
+      this.loading = true
+      
+      try {
+        await api.cambiarContrasena(
+          this.usuario,
+          this.form.contrasenaActual,
+          this.form.nuevaContrasena
+        )
+
+        this.toast.success('Contraseña cambiada exitosamente', {
+          timeout: 5000
+        })
+
+        // Limpiar formulario
+        this.form = {
+          contrasenaActual: '',
+          nuevaContrasena: '',
+          confirmarContrasena: ''
+        }
+        this.errors = {}
+
+        // Redirigir al perfil después de un momento
+        setTimeout(() => {
+          this.$router.push('/perfil')
+        }, 2000)
+
+      } catch (error) {
+        console.error('Error al cambiar contraseña:', error)
+        
+        let errorMessage = 'Error al cambiar la contraseña'
+        if (error.response?.data) {
+          errorMessage = error.response.data
+        }
+        
+        this.toast.error(errorMessage, {
+          timeout: 5000
+        })
+      } finally {
+        this.loading = false
+      }
+    },
+
+    irAPerfil() {
+      this.$router.push('/perfil')
+    }
+  }
 }
 </script>
 
@@ -158,6 +306,18 @@ h1 {
   background-color: #fff;
 }
 
+.input-error {
+  border: 2px solid #F6888A !important;
+  background-color: #ffeaea;
+}
+
+.error-text {
+  color: #F6888A;
+  font-size: 12px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
 .boton-guardar {
   cursor: pointer;
   background-color: #B7C3E8;
@@ -168,6 +328,12 @@ h1 {
   display: inline-block;
   font-weight: 600;
 } 
+
+.boton-guardar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
 .boton-cancelar {
   cursor: pointer;

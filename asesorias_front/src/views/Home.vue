@@ -1,315 +1,686 @@
 <template>
-    <div class="container">
-        <div class="welcome-card">
-            <div class="header">
-                <v-icon color="green" size="large">mdi-hand-wave</v-icon>
-                <div class="header-text">
-                    <h1>Bienvenido, Profesor</h1>
-                    <p class="subtitle">Sistema de Registro de Asesorías Académicas</p>
-                </div>
-            </div>
-
-            <h2 class="section-title">Acciones rápidas</h2>
-            <div class="actions-container">
-                <v-card class="action-card" elevation="1" @click="navigateTo('registrar')">
-                    <div class="action-icon green lighten-4">
-                        <v-icon color="green">mdi-file-document-edit-outline</v-icon>
-                    </div>
-                    <div class="action-text">
-                        <h3>Registrar Asesoría</h3>
-                        <p>Registre una nueva asesoría académica</p>
-                    </div>
-                </v-card>
-
-                <v-card class="action-card" elevation="1" @click="navigateTo('historial')">
-                    <div class="action-icon blue lighten-4">
-                        <v-icon color="blue">mdi-history</v-icon>
-                    </div>
-                    <div class="action-text">
-                        <h3>Historial de Asesorías</h3>
-                        <p>Consulte asesorías previas</p>
-                    </div>
-                </v-card>
-
-                <v-card class="action-card" elevation="1" @click="navigateTo('estadisticas')">
-                    <div class="action-icon amber lighten-4">
-                        <v-icon color="amber darken-2">mdi-chart-bar</v-icon>
-                    </div>
-                    <div class="action-text">
-                        <h3>Estadísticas</h3>
-                        <p>Visualice métricas y reportes</p>
-                    </div>
-                </v-card>
-            </div>
-
-            <h2 class="section-title">Resumen del periodo actual</h2>
-            <div class="summary-container">
-                <v-card class="summary-card" elevation="1">
-                    <div class="summary-content">
-                        <h3 class="summary-label">Total de asesorías</h3>
-                        <p class="summary-value">28</p>
-                    </div>
-                    <div class="summary-icon">
-                        <v-icon color="green">mdi-file-document-multiple-outline</v-icon>
-                    </div>
-                </v-card>
-
-                <v-card class="summary-card" elevation="1">
-                    <div class="summary-content">
-                        <h3 class="summary-label">Alumnos atendidos</h3>
-                        <p class="summary-value">15</p>
-                    </div>
-                    <div class="summary-icon">
-                        <v-icon color="blue">mdi-account-group</v-icon>
-                    </div>
-                </v-card>
-
-                <v-card class="summary-card" elevation="1">
-                    <div class="summary-content">
-                        <h3 class="summary-label">Horas impartidas</h3>
-                        <p class="summary-value">42</p>
-                    </div>
-                    <div class="summary-icon">
-                        <v-icon color="amber darken-2">mdi-clock-outline</v-icon>
-                    </div>
-                </v-card>
-
-                <v-card class="summary-card" elevation="1">
-                    <div class="summary-content">
-                        <h3 class="summary-label">Periodo actual</h3>
-                        <p class="summary-value">25-26A</p>
-                    </div>
-                    <div class="summary-icon">
-                        <v-icon color="purple">mdi-calendar</v-icon>
-                    </div>
-                </v-card>
-            </div>
-
-            <h2 class="section-title">Asesorías recientes</h2>
-            <v-table class="recent-table">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Alumno</th>
-                        <th>Materia</th>
-                        <th>Duración</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="asesoria in asesoriasRecientes" :key="asesoria.id">
-                        <td>{{ asesoria.fecha }}</td>
-                        <td>{{ asesoria.alumno }}</td>
-                        <td>{{ asesoria.materia }}</td>
-                        <td>{{ asesoria.duracion }}</td>
-                        <td>
-                            <v-icon @click="verAsesoria(asesoria.id)" color="green">mdi-eye</v-icon>
-                        </td>
-                    </tr>
-                </tbody>
-            </v-table>
-
-            <div class="ver-mas">
-                <v-btn color="green" variant="text" @click="verHistorialCompleto">
-                    VER HISTORIAL COMPLETO
-                    <v-icon right>mdi-arrow-right</v-icon>
-                </v-btn>
-            </div>
+  <div class="home-container">
+    <!-- Encabezado de bienvenida -->
+    <div class="welcome-header">
+      <div class="welcome-content">
+        <div class="profile-section">
+          <div class="profile-image">
+            <img src="@/assets/usuario.png" alt="Imagen de perfil">
+          </div>
+          <div class="welcome-text">
+            <h1 class="welcome-title">¡Bienvenido de vuelta!</h1>
+            <h2 class="professor-name">{{ professorName }}</h2>
+            <p class="professor-info">{{ professorRole }} • {{ professorBuilding }}</p>
+          </div>
         </div>
+        <div class="current-period">
+          <div class="period-info">
+            <h3>Periodo Actual</h3>
+            <p>{{ currentPeriod }}</p>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="quick-stats">
+      <h3 class="section-title">Resumen de Actividad</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <IconifyIcon icon="material-symbols-light:calendar-month-outline" width="40" height="40" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ totalAsesorias }}</div>
+            <div class="stat-label">Asesorías Impartidas</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <IconifyIcon icon="material-symbols-light:group-outline" width="40" height="40" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ totalAlumnos }}</div>
+            <div class="stat-label">Alumnos Atendidos</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <IconifyIcon icon="material-symbols-light:book-2-outline" width="40" height="40" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ materiaMasSolicitada || 'N/A' }}</div>
+            <div class="stat-label">Materia Más Solicitada</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <IconifyIcon icon="material-symbols-light:schedule-outline" width="40" height="40" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ promedioDuracion }}</div>
+            <div class="stat-label">Duración Promedio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Materias que imparte -->
+    <div class="subjects-section">
+      <h3 class="section-title">Mis Materias</h3>
+      <div class="subjects-grid">
+        <div v-for="materia in materias" :key="materia.id" class="subject-card">
+          <div class="subject-icon">
+            <IconifyIcon icon="material-symbols-light:menu-book-outline" width="24" height="24" />
+          </div>
+          <div class="subject-name">{{ materia.nombre }}</div>
+        </div>
+        <div v-if="materias.length === 0" class="no-subjects">
+          <IconifyIcon icon="material-symbols-light:info-outline" width="24" height="24" />
+          <span>No hay materias asignadas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accesos rápidos -->
+    <div class="quick-actions">
+      <h3 class="section-title">Accesos Rápidos</h3>
+      <div class="actions-grid">
+        <div class="action-card" @click="navigateTo('/registro-asesorias')">
+          <div class="action-icon primary">
+            <IconifyIcon icon="material-symbols-light:add-circle-outline" width="32" height="32" />
+          </div>
+          <div class="action-content">
+            <h4>Registrar Asesoría</h4>
+            <p>Registra una nueva sesión de asesoría</p>
+          </div>
+        </div>
+        
+        <div class="action-card" @click="navigateTo('/historial-asesorias')">
+          <div class="action-icon secondary">
+            <IconifyIcon icon="material-symbols-light:history" width="32" height="32" />
+          </div>
+          <div class="action-content">
+            <h4>Historial</h4>
+            <p>Consulta el historial de asesorías</p>
+          </div>
+        </div>
+        
+        <div class="action-card" @click="navigateTo('/estadisticas')">
+          <div class="action-icon tertiary">
+            <IconifyIcon icon="material-symbols-light:analytics-outline" width="32" height="32" />
+          </div>
+          <div class="action-content">
+            <h4>Estadísticas</h4>
+            <p>Ver análisis detallado de actividad</p>
+          </div>
+        </div>
+        
+        <div class="action-card" @click="navigateTo('/perfil')">
+          <div class="action-icon quaternary">
+            <IconifyIcon icon="material-symbols-light:person-outline" width="32" height="32" />
+          </div>
+          <div class="action-content">
+            <h4>Mi Perfil</h4>
+            <p>Gestiona tu información personal</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section">
+      <div class="info-card">
+        <div class="info-header">
+          <IconifyIcon icon="material-symbols-light:lightbulb-outline" width="24" height="24" />
+          <h4>Tip del día</h4>
+        </div>
+        <p>Recuerda registrar tus asesorías inmediatamente después de concluirlas para mantener un historial preciso.</p>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-header">
+          <IconifyIcon icon="material-symbols-light:schedule" width="24" height="24" />
+          <h4>Horarios de Atención</h4>
+        </div>
+        <p>{{ professorSchedule || 'Consulta tu horario de cubículo en el sistema académico.' }}</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import { ref, computed, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import api from '@/services/api';
+
 export default {
-    name: 'HomeView',
-    data() {
-        return {
-            asesoriasRecientes: [
-                { id: 1, fecha: '10/05/2025', alumno: 'Daniel González Ruiz', materia: 'Programación Web', duracion: '1h 30m' },
-                { id: 2, fecha: '09/05/2025', alumno: 'Elisa Sánchez Martínez', materia: 'Bases de Datos', duracion: '45m' },
-                { id: 3, fecha: '08/05/2025', alumno: 'Gael García Pinacho', materia: 'Redes de Computadoras', duracion: '2h' },
-                { id: 4, fecha: '07/05/2025', alumno: 'Mayra Castellanos Pacheco', materia: 'Sistemas Operativos', duracion: '1h' },
-            ]
+  name: 'HomeView',
+  setup() {
+    // Store y Router
+    const store = useStore();
+    const router = useRouter();
+
+    // Computed para obtener datos del profesor
+    const currentProfesor = computed(() => store.getters.currentProfesor);
+
+    // Variables reactivas para la información del profesor
+    const professorName = ref('Cargando...');
+    const professorRole = ref('Profesor');
+    const professorBuilding = ref('');
+    const professorSchedule = ref('');
+
+    // Variables para estadísticas
+    const totalAsesorias = ref('0');
+    const promedioDuracion = ref('0 min');
+    const totalAlumnos = ref('0');
+    const materiaMasSolicitada = ref('Sin registro');
+
+    // Variables para materias
+    const materias = ref([]);
+
+    // Periodo actual
+    const currentPeriod = ref('');
+
+    // Función para calcular el periodo académico actual
+    const calcularPeriodoActual = () => {
+      const ahora = new Date();
+      const mes = ahora.getMonth() + 1;
+      const año = ahora.getFullYear();
+
+      const añoActual = año.toString().slice(-2);
+      const añoSiguiente = (año + 1).toString().slice(-2);
+
+      if (mes >= 2 && mes <= 7) {
+        return `Febrero-Julio ${añoActual}-${añoSiguiente}A`;
+      } else if (mes >= 8 && mes <= 12) {
+        return `Agosto-Diciembre ${añoActual}-${añoSiguiente}B`;
+      } else {
+        const añoAnterior = (año - 1).toString().slice(-2);
+        return `Agosto-Diciembre ${añoAnterior}-${añoActual}B`;
+      }
+    };
+
+    // Función para cargar datos del perfil del profesor
+    const cargarDatosPerfilProfesor = async () => {
+      try {
+        const response = await api.getDatosPerfilProfesor();
+        const datos = response.data;
+
+        if (Array.isArray(datos) && datos.length > 0) {
+          const perfilData = datos[0];
+          professorRole.value = perfilData.rol || 'Profesor';
+          professorBuilding.value = perfilData.edificio || '';
+          professorSchedule.value = perfilData.horarios || '';
         }
-    },
-    computed: {
-        currentUser() {
-            return this.$store.getters.currentUser
+      } catch (error) {
+        console.error('Error al obtener datos del perfil:', error);
+      }
+    };
+
+    // Función para cargar estadísticas del profesor
+    const cargarEstadisticasProfesor = async (profesorId) => {
+      try {
+        const response = await api.getEstadisticasPorProfesorId(profesorId);
+        
+        if (response.data && response.data.length >= 4) {
+          totalAsesorias.value = response.data[0]?.[0] ?? '0';
+          promedioDuracion.value = response.data[1]?.[0] ?? '0 min';
+          totalAlumnos.value = response.data[2]?.[0] ?? '0';
+          materiaMasSolicitada.value = response.data[3]?.[0] ?? 'Sin registro';
         }
-    },
-    methods: {
-        navigateTo(section) {
-            // Implementar la navegación hacia las diferentes secciones
-            console.log(`Navegando a ${section}`);
-            if (section === 'registrar') {
-                this.$router.push('/registro-asesorias');
-            } else if (section === 'historial') {
-                this.$router.push('/historial');
-            } else if (section === 'estadisticas') {
-                this.$router.push('/estadisticas');
-            }
-        },
-        verAsesoria(id) {
-            console.log(`Ver asesoría con ID: ${id}`);
-            // Implementar visualización de detalles de asesoría
-        },
-        verHistorialCompleto() {
-            this.$router.push('/historial');
+      } catch (error) {
+        console.error('Error al obtener estadísticas:', error);
+      }
+    };
+
+    // Función para cargar materias del profesor
+    const cargarMateriasProfesor = async (profesorId) => {
+      try {
+        const response = await api.getMateriasPorProfesorId(profesorId);
+        materias.value = response.data.map(materia => ({
+          id: materia[1],
+          nombre: materia[0]
+        }));
+      } catch (error) {
+        console.error('Error al obtener materias:', error);
+        materias.value = [];
+      }
+    };
+
+    // Función para cargar todos los datos del profesor
+    const cargarDatosProfesor = async () => {
+      try {
+        await store.dispatch('dataProfesor');
+
+        // Establecer el nombre del profesor
+        if (currentProfesor.value?.nomProf) {
+          const nombreCompleto = [
+            currentProfesor.value.nomProf,
+            currentProfesor.value.apellidoProf,
+            currentProfesor.value.apellidoMProf
+          ].filter(Boolean).join(' ');
+          professorName.value = nombreCompleto;
         }
-    }
-}
+
+        // Cargar datos adicionales si tenemos el ID del profesor
+        if (currentProfesor.value?.idProfesor) {
+          await Promise.all([
+            cargarEstadisticasProfesor(currentProfesor.value.idProfesor),
+            cargarMateriasProfesor(currentProfesor.value.idProfesor),
+            cargarDatosPerfilProfesor()
+          ]);
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del profesor:', error);
+      }
+    };
+
+    // Función para navegar a otras vistas
+    const navigateTo = (route) => {
+      router.push(route);
+    };
+
+    // Cargar datos al montar el componente
+    onMounted(async () => {
+      currentPeriod.value = calcularPeriodoActual();
+      await cargarDatosProfesor();
+    });
+
+    return {
+      // Datos del profesor
+      professorName,
+      professorRole,
+      professorBuilding,
+      professorSchedule,
+      
+      // Estadísticas
+      totalAsesorias,
+      promedioDuracion,
+      totalAlumnos,
+      materiaMasSolicitada,
+      
+      // Materias
+      materias,
+      
+      // Periodo actual
+      currentPeriod,
+      
+      // Métodos
+      navigateTo
+    };
+  }
+};
 </script>
 
 <style scoped>
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  padding-top: 3%;
+  min-height: 100vh;
 }
 
-.welcome-card {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+/* Encabezado de bienvenida */
+.welcome-header {
+  background: #DDE5FF;
+  border-radius: 30px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  color: #000000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #eaeaea;
-    padding-bottom: 1rem;
+.welcome-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.header-text {
-    margin-left: 1rem;
-    text-align: left;
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-h1 {
-    color: #2e7d32;
-    margin-bottom: 0.25rem;
-    font-size: 1.8rem;
+.profile-image img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid #98A2C3;
+  object-fit: cover;
 }
 
-.subtitle {
-    color: #666;
-    font-size: 1rem;
-    margin: 0;
+.welcome-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: #000000;
 }
 
+.professor-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: #000000;
+}
+
+.professor-info {
+  font-size: 16px;
+  margin: 0;
+  color: #000000;
+}
+
+.current-period {
+  text-align: right;
+}
+
+.period-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: #000000;
+}
+
+.period-info p {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: #000000;
+}
+
+/* Secciones */
 .section-title {
-    color: #555;
-    font-size: 1.2rem;
-    margin: 2rem 0 1rem 0;
-    text-align: left;
-    font-weight: 500;
+  font-size: 28px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.actions-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 2rem;
+/* Estadísticas rápidas */
+.quick-stats {
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: #DDE5FF;
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  border: none;
+  position: relative;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  background: #B7C3E8;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #000000;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+  margin: 12px 0 8px 0;
+}
+
+.stat-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Sección de materias */
+.subjects-section {
+  margin-bottom: 2rem;
+}
+
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.subject-card {
+  background: #DDE5FF;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+}
+
+.subject-card:hover {
+  transform: translateY(-2px);
+}
+
+.subject-icon {
+  background: #B7C3E8;
+  border-radius: 12px;
+  padding: 0.75rem;
+  color: #000000;
+}
+
+.subject-name {
+  font-weight: 600;
+  color: #000000;
+  font-size: 16px;
+}
+
+.no-subjects {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #000000;
+  font-style: italic;
+  padding: 2rem;
+  background: #DDE5FF;
+  border-radius: 20px;
+}
+
+/* Accesos rápidos */
+.quick-actions {
+  margin-bottom: 2rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .action-card {
-    display: flex;
-    padding: 1rem;
-    cursor: pointer;
-    transition: transform 0.2s;
+  background: #DDE5FF;
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .action-card:hover {
-    transform: translateY(-5px);
+  transform: translateY(-2px);
 }
 
 .action-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 1rem;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #000000;
 }
 
-.action-text {
-    text-align: left;
+.action-icon.primary {
+  background: #B7C3E8;
 }
 
-.action-text h3 {
-    margin: 0;
-    font-size: 1rem;
-    color: #333;
+.action-icon.secondary {
+  background: #B7C3E8;
 }
 
-.action-text p {
-    margin: 0.25rem 0 0 0;
-    font-size: 0.8rem;
-    color: #777;
+.action-icon.tertiary {
+  background: #B7C3E8;
 }
 
-.summary-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 2rem;
+.action-icon.quaternary {
+  background: #B7C3E8;
 }
 
-.summary-card {
-    display: flex;
-    justify-content: space-between;
+.action-content h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.25rem 0;
+}
+
+.action-content p {
+  font-size: 14px;
+  color: #000000;
+  margin: 0;
+}
+
+/* Información adicional */
+.info-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  background: #DDE5FF;
+  border-radius: 20px;
+  padding: 25px;
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: #000000;
+}
+
+.info-header h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.info-card p {
+  color: #000000;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-container {
     padding: 1rem;
+    padding-top: 5%;
+  }
+
+  .welcome-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .current-period {
+    text-align: center;
+  }
+
+  .welcome-title {
+    font-size: 24px;
+  }
+
+  .professor-name {
+    font-size: 18px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .subjects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-section {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
 }
 
-.summary-content {
-    text-align: left;
+/* Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.summary-label {
-    margin: 0;
-    font-size: 0.8rem;
-    color: #777;
-    font-weight: normal;
+.stat-card {
+  animation: fadeInUp 0.6s ease forwards;
 }
 
-.summary-value {
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin: 0.25rem 0 0 0;
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.subject-card {
+  animation: fadeInUp 0.6s ease forwards;
 }
 
-.recent-table {
-    width: 100%;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    overflow: hidden;
+.action-card {
+  animation: fadeInUp 0.6s ease forwards;
 }
 
-.ver-mas {
-    text-align: right;
-    margin-top: 1rem;
-}
-
-@media (max-width: 960px) {
-    .actions-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .summary-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .actions-container {
-        grid-template-columns: 1fr;
-    }
-
-    .summary-container {
-        grid-template-columns: 1fr;
-    }
+.info-card {
+  animation: fadeInUp 0.6s ease forwards;
 }
 </style>

@@ -13,10 +13,9 @@
         <!-- Campos de formulario agrupados -->
         <div v-for="(row, rowIndex) in formRows" :key="rowIndex" class="d-flex mb-4">
           <div v-for="(field, fieldIndex) in row.fields" :key="fieldIndex" class="field-container"
-            :class="[fieldIndex < row.fields.length - 1 ? 'mr-4' : '', field.customClass]">
-            <div class="field-label">{{ field.label }}:</div> <!-- Campo de texto estándar -->
+            :class="[fieldIndex < row.fields.length - 1 ? 'mr-4' : '', field.customClass]">            <div class="field-label">{{ field.label }}:</div> <!-- Campo de texto estándar -->
             <v-text-field v-if="field.type === 'text' || field.type === 'date'" v-model="formData[field.model]"
-              :type="field.type" variant="outlined" :rules="field.rules || requiredRules" class="bordered-field"
+              :type="field.type" variant="outlined" :rules="field.readonly ? [] : (field.rules || requiredRules)" class="bordered-field"
               density="comfortable" :readonly="field.readonly" :maxlength="field.model === 'matricula' ? 10 : undefined"
               @input="field.model === 'matricula' ? filtrarSoloNumeros($event) : null">
             </v-text-field>
@@ -317,7 +316,7 @@ const formRows = computed(() => [
         label: 'En sustitución de',
         model: 'lugarAsesoria',
         type: 'radio',
-        options: ['Biblioteca', 'Sala de computo', 'Otro'],
+        options: ['Biblioteca', 'Sala de Computo', 'Otro'],
         customClass: 'radio-container'
       },
       {
