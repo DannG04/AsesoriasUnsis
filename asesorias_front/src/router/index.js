@@ -70,7 +70,8 @@ const routes = [
     name: 'CambioContraseña',
     component: CambioContraseña,
     meta: { requiresAuth: false } // Requiere autenticación
-  }
+  },
+  
 ];
 
 // Crear la instancia del router

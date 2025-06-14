@@ -58,5 +58,14 @@ export default {
     fecha
   });
   },
+
+  // Método para cambiar la contraseña de un usuario
+  cambiarContrasena(usuario, contrasenaActual, nuevaContrasena) {
+    return apiClient.post('/api/auth/cambiar-contrasena', {
+      usuario,
+      contrasenaActual,
+      nuevaContrasena
+    });
+  },
   
 }

@@ -75,6 +75,27 @@ public class AuthController {
     }
 
     /**
+     * Endpoint para cambiar la contraseña de un usuario.
+     * 
+     * @param cambioRequest Objeto que contiene el usuario, contraseña actual y nueva contraseña.
+     * @return Respuesta indicando el éxito o error del cambio.
+     */
+    @PostMapping("/cambiar-contrasena")
+    public ResponseEntity<?> cambiarContrasena(@RequestBody CambioContrasenaRequest cambioRequest) {
+        try {
+            authService.cambiarContrasena(
+                    cambioRequest.getUsuario(),
+                    cambioRequest.getContrasenaActual(),
+                    cambioRequest.getNuevaContrasena());
+            return ResponseEntity.ok("Contraseña cambiada exitosamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error interno del servidor");
+        }
+    }
+
+    /**
      * Clase interna para representar la solicitud de inicio de sesión.
      */
     @Data
@@ -106,5 +127,17 @@ public class AuthController {
     @AllArgsConstructor
     public static class JwtResponse {
         private String token;
+    }
+
+    /**
+     * Clase interna para representar la solicitud de cambio de contraseña.
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CambioContrasenaRequest {
+        private String usuario;
+        private String contrasenaActual;
+        private String nuevaContrasena;
     }
 }

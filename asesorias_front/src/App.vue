@@ -186,12 +186,16 @@ body {
 
 /* Sidebar styles */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 234px;
-  min-height: 100vh;
+  height: 100vh;
   background-color: white;
   border-right: 1px solid #e0e0e0;
   transition: all 0.3s ease;
   z-index: 1001;
+  overflow-y: auto;
 }
 
 .sidebar-header {
@@ -247,11 +251,13 @@ body {
 
 /* Content area */
 .content-wrapper {
+  margin-left: 234px;
   flex: 1;
   display: flex;
   flex-direction: column;
   background-color: #9AD7A7;
   position: relative;
+  min-height: 100vh;
 }
 
 header {
@@ -350,6 +356,7 @@ header {
     left: -240px;
     z-index: 1001;
     height: 100vh;
+    width: 240px;
     transition: left 0.3s ease;
   }
 
