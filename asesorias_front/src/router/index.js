@@ -7,6 +7,7 @@ import RegistroAsesorias from '../views/RegistroAsesorias.vue';
 import PerfilView from '../views/Perfil.vue';
 import store from '../store';
 import HistorialAsesorias from "@/views/HistorialAsesorias.vue";
+import CambioContraseña  from '@/views/CambioContraseña.vue';
 
 // Definir constantes para las rutas principales
 const LOGIN_ROUTE = '/login';
@@ -60,7 +61,7 @@ const routes = [
 },{
     path: PERFIL_ROUTE,
     name: 'PerfilView',
-    component: PerfilView,
+    component: CambioContraseña,
     meta: { requiresAuth: false } // Requiere autenticación
   }
 ];
