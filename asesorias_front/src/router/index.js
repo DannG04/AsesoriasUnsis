@@ -8,6 +8,7 @@ import PerfilView from '../views/Perfil.vue';
 import store from '../store';
 import HistorialAsesorias from "@/views/HistorialAsesorias.vue";
 import CambioContraseña  from '@/views/CambioContraseña.vue';
+import DatosUsuario from '@/views/DatosUsuario.vue';
 
 // Definir constantes para las rutas principales
 const LOGIN_ROUTE = '/login';
@@ -18,6 +19,7 @@ const ESTADISTICAS_ROUTE = '/estadisticas';
 const PERFIL_ROUTE = '/perfil';
 const HISTORIAL_ASESORIAS_ROUTE = '/historial-asesorias';
 const CAMBIO_CONTRASENA_ROUTE = '/cambio-contrasena';
+const MODIFICAR_PERFIL_ROUTE = '/modificar-perfil';
 
 // Definir las rutas de la aplicación
 const routes = [
@@ -69,6 +71,12 @@ const routes = [
     path: CAMBIO_CONTRASENA_ROUTE,
     name: 'CambioContraseña',
     component: CambioContraseña,
+    meta: { requiresAuth: false } // Requiere autenticación
+  },
+  {
+    path: MODIFICAR_PERFIL_ROUTE,
+    name: 'ModificarPerfil',
+    component: DatosUsuario,
     meta: { requiresAuth: false } // Requiere autenticación
   },
   

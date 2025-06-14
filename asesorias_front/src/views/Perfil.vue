@@ -185,6 +185,10 @@ export default {
     irACambioContrasena() {
       // Navegar al componente de cambio de contraseña
       this.$router.push('/cambio-contrasena');
+    },
+    irAModifiarPerfil() {
+      // Navegar al componente de cambio de contraseña
+      this.$router.push('/modificar-perfil');
     }
   }
 }
