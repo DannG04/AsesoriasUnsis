@@ -1,25 +1,15 @@
 <template>
     <div class="principal">
-        <h1>SEGURIDAD</h1>
+        <h1>DATOS DEL USUARIO</h1>
         <div class="general">
           <div class="contenido">
-            <div class="izquierda">
-                <label class="label">Usuario:</label>
-                <label class="label">Contraseña Actual <label class="asterisco">*</label></label>
-                <label class="label">Nueva Contraseña <label class="asterisco">*</label></label>
-                <label class="label">Confirmar contraseña <label class="asterisco">*</label></label>
-            </div>
-                <label>{{ usuario }}</label>
-                <input class="input" type="password" placeholder="Contraseña"/>
-                <input class="input" type="password" placeholder="Nueva Contraseña"/>
-                <input class="input" type="password" placeholder="Confirmar Contraseña"/>
-            </div>
-          </div>
-          <div class="parrafo">
-            <p>
-            La contraseña deberá tener al menos 8 caracteres, al menos 1 dígito(s), al menos 1 minúscula(s),
-            al menos 1 MAYÚSCULA(S) y al menos 1 caracter(es) no-alfanumérico(s) como . $ ? / * - + # @
-            </p>
+                <label class="label">Descripción:</label>
+                <textarea 
+                  class="input" 
+                  v-model="descripcion" 
+                  @input="validarLongitud"
+                ></textarea>
+                <p class="contador">{{ descripcion.length }}/400 caracteres</p>
           </div>
           <!-- Botones de acción -->
           <div class="botones">
@@ -35,17 +25,23 @@ export default {
   name: 'PerfilView',
   data() {
     return {
-      usuario: ''
+      descripcion: ''
     }
-},
-    mounted() {
-        this.usuario = '2022060488li'
+  },
+  methods: {
+    validarLongitud() {
+      if (this.descripcion.length > 400) {
+        this.descripcion = this.descripcion.slice(0, 400); // Trunca el texto a 400 caracteres
+      }
     }
+  },
+  mounted() {
+    this.descripcion = 'Doctor en Ciencias de la Computación especializado en Inteligencia Artificial. Imparto cursos de Algoritmos y Minería de Datos. 15 años de experiencia docente. Disponible para asesorías en proyectos de investigación y tesis relacionadas con IA y análisis de datos.';
+  }
 }
 </script>
 
 <style scoped>
-
 /*Todo el contenedor */
 .principal {
     display: flex;
@@ -55,7 +51,7 @@ export default {
     top: 50%;
     left: 50%;
     width: 90%;
-    height: auto;
+    height: 80%;
     padding-left: 10%;
     gap: 40px; 
     padding-top: 60px;
@@ -82,31 +78,8 @@ export default {
     border-radius: 30px;
     flex-direction: row;
     display: flex;
-}
-
-.izquierda {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: start;
-    justify-content: space-between;
-    width: 100%;
-    height: 100%;
-    padding: 10%;
-    gap: 30px;
-}
-
-.derecha {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: start;
-    justify-content: space-between;
-    width: 100%;
-    height: 100%;
-    padding: 10%;
-    margin-right: auto;
-    gap: 20px;
+    padding: 50px;
+    gap: 30px; /* Espacio entre columnas */
 }
 
 .botones {
@@ -124,37 +97,28 @@ h1 {
     font-size: 300%;
 }
 
-.parrafo {
-    flex-grow: 1;
-    color: #7E828F;
-    text-align: center;
-    padding-left: 10%;
-    padding-right: 10%;
-    padding-bottom: 2px;
-    padding-top: 0; /* Eliminar espacio superior */
-    margin-top: -10px; /* Acercar más al contenido */
-    width: auto;
-    height: auto;
-}
-
 .label {
   font-size: 120%;
   font-weight: bold;  
   white-space: nowrap;
 }
 
-.asterisco {
-  color: red;
-  font-weight: bold;
-}
-
 .input {
   width: 100%;
-  height: 50px;
-  border-radius: 5px;
-  padding: 5px;
+  height: 150px;
+  border-radius: 10px;
+  padding: 10px;
   border: 1px solid #ccc;
   background-color: #fff;
+  font-size: 14px;
+  resize: none;
+}
+
+.contador {
+  font-size: 12px;
+  color: #7E828F;
+  text-align: right;
+  margin-top: 5px;
 }
 
 .boton-guardar {
@@ -178,48 +142,4 @@ h1 {
   display: inline-block;
   font-weight: 600;
 }
-
-/*Estilos responsivos */
-@media (max-width: 768px) {
-  .contenido {
-    flex-direction: column; /* Apila las columnas verticalmente */
-    gap: 10px;
-  }
-
-  .izquierda, .derecha {
-    padding: 5%; /* Reduce el padding en pantallas pequeñas */
-    width: 100%; /* Ocupan todo el ancho */
-  }
-
-  .botones {
-    flex-direction: column; /* Apila los botones verticalmente */
-    gap: 10px;
-  }
-
-  .parrafo {
-    padding-left: 10%;
-    padding-right: 10%;
-  }
-}
-
-@media (max-width: 480px) {
-  .principal {
-    padding-left: 5%; /* Reduce el padding en pantallas muy pequeñas */
-  }
-
-  .label {
-    font-size: 100%; /* Reduce el tamaño del texto */
-  }
-
-  .input {
-    height: 40px; /* Reduce la altura de los inputs */
-  }
-
-  .boton-guardar, .boton-cancelar {
-    min-width: 100px; /* Reduce el tamaño mínimo de los botones */
-    min-height: 40px;
-  }
-}
-
-
 </style>
