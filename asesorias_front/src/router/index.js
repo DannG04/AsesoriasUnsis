@@ -19,7 +19,7 @@ const ESTADISTICAS_ROUTE = '/estadisticas';
 const PERFIL_ROUTE = '/perfil';
 const HISTORIAL_ASESORIAS_ROUTE = '/historial-asesorias';
 const CAMBIO_CONTRASENA_ROUTE = '/cambio-contrasena';
-const MODIFICAR_PERFIL_ROUTE = '/modificar-perfil';
+const MODIFICAR_PERFIL_ROUTE = '/Datos-Usuario';
 
 // Definir las rutas de la aplicación
 const routes = [
@@ -75,7 +75,7 @@ const routes = [
   },
   {
     path: MODIFICAR_PERFIL_ROUTE,
-    name: 'ModificarPerfil',
+    name: 'DatosUsuario',
     component: DatosUsuario,
     meta: { requiresAuth: false } // Requiere autenticación
   },

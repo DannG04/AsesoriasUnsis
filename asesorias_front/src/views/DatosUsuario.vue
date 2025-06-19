@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: 'PerfilView',
+  name: 'DatosUsuario',
   data() {
     return {
       descripcion: ''
