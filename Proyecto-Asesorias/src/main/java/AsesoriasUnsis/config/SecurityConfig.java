@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/carreras/**").permitAll() // Permitir acceso a endpoints de carreras
                         .requestMatchers("/usuarios/**").permitAll() // Permitir acceso a endpoints de usuarios
                         .requestMatchers("/asesorias/**").permitAll() // Permitir acceso a endpoints de asesorías
+                        .requestMatchers("/api/asesorias/historial").permitAll() // Permitir acceso al historial de asesorías
                         // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated());
 
