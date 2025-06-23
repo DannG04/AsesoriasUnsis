@@ -96,8 +96,17 @@ export default createStore({
         logout({ commit }) {
             return new Promise(resolve => {
                 commit('logout'); // Restablece el estado global
+                localStorage.removeItem('token'); // Elimina el token de localStorage                localStorage.removeItem('user'); // Elimina la información del usuario
+                resolve();
+            });
+        },
+        forceLogout({ commit }) {
+            // Acción para limpiar la sesión forzadamente cuando el backend no responde
+            return new Promise(resolve => {
+                commit('logout'); // Restablece el estado global
                 localStorage.removeItem('token'); // Elimina el token de localStorage
                 localStorage.removeItem('user'); // Elimina la información del usuario
+                localStorage.removeItem('profesor'); // Elimina la información del profesor
                 resolve();
             });
         },
