@@ -91,16 +91,30 @@ const router = createRouter({
 // Protección de rutas
 // Verifica si el usuario está autenticado antes de acceder a ciertas rutas
 router.beforeEach((to, from, next) => {
+  const isLoggedIn = store.getters.isLoggedIn;
+  const token = localStorage.getItem('token');
+  
+  // Verificar si hay token pero el store no tiene información de login
+  if (token && !isLoggedIn) {
+    // Limpiar datos inconsistentes
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('profesor');
+    store.commit('logout');
+  }
+  
   if (to.matched.some(record => record.meta.requiresAuth)) {
     // Si la ruta requiere autenticación y el usuario no está autenticado
-    if (!store.getters.isLoggedIn) {
+    if (!store.getters.isLoggedIn || !localStorage.getItem('token')) {
+      // Limpiar datos por seguridad
+      store.dispatch('forceLogout');
       next(LOGIN_ROUTE); // Redirige al inicio de sesión
       return;
     }
     next();
   } else if (to.matched.some(record => record.meta.guest)) {
     // Si la ruta es solo para invitados y el usuario ya está autenticado
-    if (store.getters.isLoggedIn) {
+    if (store.getters.isLoggedIn && localStorage.getItem('token')) {
       next(HOME_ROUTE); // Redirige a la página principal
       return;
     }
