@@ -198,8 +198,7 @@ import {ref, computed, onMounted, watch} from 'vue'
 import { useStore } from 'vuex';
 import html2pdf from "html2pdf.js";
 import api from "@/services/api";
-/*import { format } from 'date-fns';
-import { es } from 'date-fns/locale';*/
+
 
 // Estados reactivos
 const deleteDialog = ref(false)
@@ -218,7 +217,7 @@ const currentProfesor = computed(() => store.getters.currentProfesor);
 const studentToDelete = ref(null)
 
 //Periodo actual
-const Periodo = ref('2024-2025A')
+const Periodo = ref('2024-2025B')
 const selectedPeriodo = ref('')
 
 // Headers de la tabla - exactamente como en la imagen
@@ -265,16 +264,36 @@ const confirmDelete = (student) => {
   deleteDialog.value = true
 }
 
-const deleteStudent = () => {
+const deleteStudent = async () => {
   if (studentToDelete.value) {
-    const index = students.value.findIndex(s => s.matricula === studentToDelete.value.matricula)
-    if (index > -1) {
-      students.value.splice(index, 1)
-      showSnackbar('Estudiante eliminado correctamente', 'success')
+    try {
+      // Primero intentamos eliminar de la base de datos si tenemos un ID
+      if (studentToDelete.value.id) {
+        // Aquí podrías agregar el código para eliminar del backend si tienes un endpoint
+        // Ejemplo: await api.eliminarAsesoria(studentToDelete.value.id);
+        console.log(`Eliminando asesoría con ID: ${studentToDelete.value.id}`);
+      }
+
+      // Luego eliminamos del array local
+      const index = students.value.findIndex(s =>
+        s.id === studentToDelete.value.id ||
+        (s.matricula === studentToDelete.value.matricula &&
+         s.fecha === studentToDelete.value.fecha)
+      );
+
+      if (index > -1) {
+        students.value.splice(index, 1);
+        showSnackbar('Registro de asesoría eliminado correctamente', 'success');
+      } else {
+        showSnackbar('No se encontró el registro a eliminar', 'error');
+      }
+    } catch (error) {
+      console.error('Error al eliminar asesoría:', error);
+      showSnackbar('Error al eliminar el registro', 'error');
     }
   }
-  deleteDialog.value = false
-  studentToDelete.value = null
+  deleteDialog.value = false;
+  studentToDelete.value = null;
 }
 
 // Función para cargar el historial de asesorías
@@ -286,7 +305,9 @@ const cargarHistorialAsesorias = async (idProfesor, periodo) => {
     console.log('Datos recibidos:', respuesta.data);
 
     // Transformar los datos al formato que espera la tabla
+    // Asegurarnos de que cada registro es único basado en sus propiedades
     students.value = respuesta.data.map(asesoria => ({
+      id: asesoria.id || `${asesoria.idest}_${asesoria.fechaest}_${Math.random()}`, // Crear ID único
       matricula: asesoria.idest,
       alumno: asesoria.nombreest,
       carrera: asesoria.carreraest,
@@ -296,6 +317,7 @@ const cargarHistorialAsesorias = async (idProfesor, periodo) => {
       obs: asesoria.obsest || ''
     }));
 
+    console.log('Datos transformados:', students.value);
     showSnackbar('Datos cargados correctamente', 'success');
   } catch (error) {
     console.error('Error al cargar el historial de asesorías:', error);
@@ -305,16 +327,22 @@ const cargarHistorialAsesorias = async (idProfesor, periodo) => {
   }
 };
 
-// Función para formatear fechas
-/*const formatearFecha = (fechaString) => {
-  if (!fechaString) return '';
+/*// Función para formatear la fecha a formato DD/MM/YYYY
+const formatearFecha = (fechaStr) => {
+  if (!fechaStr) return '';
 
   try {
-    const fecha = new Date(fechaString);
-    return format(fecha, 'dd/MM/yyyy', { locale: es });
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha.getTime())) return fechaStr; // Si no es válida, retornamos el string original
+
+    return fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   } catch (error) {
     console.error('Error al formatear fecha:', error);
-    return fechaString;
+    return fechaStr;
   }
 };*/
 
@@ -365,6 +393,7 @@ const profesorNombre = computed(() => {
   return 'Nombre del Profesor';
 });
 
+// Jefe de carrera - temporal, se puede cambiar según sea necesario
 const jefeCarrera = 'Everardo Pacheco'; // Constante temporal
 
 const exportToPDF = () => {
