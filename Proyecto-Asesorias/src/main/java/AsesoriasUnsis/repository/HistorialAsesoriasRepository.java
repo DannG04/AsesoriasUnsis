@@ -20,4 +20,10 @@ public interface HistorialAsesoriasRepository extends JpaRepository<HistorialAse
            "FROM historial_asesorias(:idprof, :cicloValido) a",
            nativeQuery = true)
     List<Object[]> findAllAsesoriasRaw(@Param("idprof") String idProf, @Param("cicloValido") String cicloValido);
+
+    @Query(value = "SELECT * FROM asesorias_pdf(:idProf, :periodo)", nativeQuery = true)
+    List<Object[]> findAsesoriasPdf(@Param("idProf") String idProf, @Param("periodo") String periodo);
+
+    @Query(value = "SELECT * FROM obtener_ciclo()", nativeQuery = true)
+    List<Object[]> obtenerCiclo();
 }
