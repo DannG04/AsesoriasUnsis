@@ -149,4 +149,18 @@ export default {
         });
     },
 
+    // Método para obtener las asesorías usando la función asesorias_pdf
+    getAsesoriasPdf(idProfesor, periodo) {
+        return apiClient.get(`/api/asesorias/pdf`, {
+            params: {
+                idProf: idProfesor,
+                periodo: periodo
+            }
+        });
+    },
+
+    // Método para obtener el ciclo actual usando la función obtener_ciclo
+    getCicloActual() {
+        return apiClient.get('/api/asesorias/ciclo-actual');
+    },
 }
