@@ -40,16 +40,6 @@ public class AsesoriaController {
             String fecha = datos.get("fecha");
             String horaInicio = datos.get("horaInicio");
             String horaFinal = datos.get("horaFinal");
-            
-            System.out.println("Llamando al servicio con los datos:");
-            System.out.println("Observaciones: " + observaciones);
-            System.out.println("Lugar: " + lugarAsesoria);
-            System.out.println("ID Profesor: " + idProfesor);
-            System.out.println("Matrícula: " + matricula);
-            System.out.println("Materia: " + materiaSeleccionada);
-            System.out.println("Fecha: " + fecha);
-            System.out.println("Hora inicio: " + horaInicio);
-            System.out.println("Hora final: " + horaFinal);
 
             
 
@@ -61,5 +51,7 @@ public class AsesoriaController {
                     .body("Error al registrar asesoría: " + e.getMessage());
         }
     }
+
+    
 
 }

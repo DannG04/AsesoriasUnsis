@@ -149,4 +149,12 @@ export default {
         });
     },
 
+  // Método para actualizar la descripción del profesor
+  actualizarDescripcionProfesor(idProfesor, descripcion) {
+    return apiClient.post('/profesores/actualizar-descripcion', {
+      idProfesor,
+      descripcion
+    });
+  },
+
 }

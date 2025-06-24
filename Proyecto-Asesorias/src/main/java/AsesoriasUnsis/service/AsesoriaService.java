@@ -32,10 +32,8 @@ public class AsesoriaService {
     public void registrarAsesoria(String comentario, String lugarAsesoria, String idProfesor,
             String matricula, String materiaSeleccionada, String fecha,
             String horaInicio, String horaFinal) {
-        // Validar formato de fecha y hora antes de enviar
         try {
-            // Verificar que la fecha tenga formato correcto (YYYY-MM-DD)
-            // Verificar que las horas tengan formato correcto (HH:MM:SS)
+
 
             asesoriaRepository.registrarAsesoria(comentario, lugarAsesoria, idProfesor,
                     matricula, materiaSeleccionada, fecha,

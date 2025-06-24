@@ -59,7 +59,7 @@
           <div class="justo">
             <!-- Botón para editar la descripción -->
             <button class="button-pen" @click="irAModifiarPerfil">
-              <div><Icon icon="material-symbols-light:ink-pen-outline-sharp" width="50" height="50" /></div>
+              <div><IconifyIcon icon="material-symbols-light:ink-pen-outline-sharp" width="50" height="50" /></div>
             </button>
           </div>
         </div>
@@ -183,15 +183,15 @@ export default {
 /*Para todo el contenedor*/
 .con-info-general {
   background-color: #DDE5FF;
-  padding: 20px;
+  padding: 15px;
   border-radius: 30px;
   width: 90%;
   max-width: 1000px;
-  margin: 20px auto;
+  margin: 15px auto;
   display: flex;
   flex-direction: row;
-  gap: 20px;
-  min-height: auto;
+  gap: 15px;
+  min-height: 320px;
   align-items: flex-start;
   justify-content: flex-start;
 }
@@ -215,7 +215,11 @@ export default {
   display: flex;           
   flex-direction: row;     
   align-items: center;     
-  gap: 12px;               
+  gap: 12px;
+  padding: 12px;
+  background-color: #DDE5FF;
+  border-radius: 10px;
+  margin-bottom: 8px;
 }
 
 /* Estilos para texto de la info específica */
@@ -238,7 +242,8 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  padding-right: 10px;
 }
 
 .derecha {
@@ -418,12 +423,17 @@ export default {
 .descripcion-columna {
   flex: 1;
   background-color: #DDE5FF;
-  padding: 20px;
+  padding: 15px;
   border-radius: 15px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0;
+  margin-left: 10px;
+  margin-top: -15px;
+  max-width: 400px;
+  min-width: 300px;
+  width: 400px;
 }
 
 .descripcion-header {
@@ -431,7 +441,7 @@ export default {
   align-items: center;
   gap: 12px;
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .descripcion-info {
@@ -443,8 +453,14 @@ export default {
 
 .descripcion-content {
   width: 100%;
-  padding-left: 62px;
+  padding-left: 0px;
   flex: 1;
+  line-height: 1.6;
+  text-align: justify;
+  max-height: 200px;
+  overflow-y: auto;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 </style>
