@@ -93,13 +93,31 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isLoggedIn = store.getters.isLoggedIn;
   const token = localStorage.getItem('token');
+  const loginTime = localStorage.getItem('loginTime');
+  
+  // Verificar expiración de sesión por tiempo
+  if (token && loginTime) {
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - parseInt(loginTime);
+    const sessionTimeout = 15 * 60 * 1000; // 15 minutos (debe coincidir con useSessionManager)
+    
+    if (elapsedTime >= sessionTimeout) {
+      // Sesión expirada por tiempo
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('profesor');
+      localStorage.removeItem('loginTime');
+      store.commit('logout');
+    }
+  }
   
   // Verificar si hay token pero el store no tiene información de login
-  if (token && !isLoggedIn) {
+  if (token && !isLoggedIn && !loginTime) {
     // Limpiar datos inconsistentes
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('profesor');
+    localStorage.removeItem('loginTime');
     store.commit('logout');
   }
   

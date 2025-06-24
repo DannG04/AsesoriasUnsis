@@ -65,8 +65,12 @@ export default createStore({
                         // Maneja la respuesta exitosa
                         const token = response.data.token;
                         const user = response.data.user;
+                        const loginTime = Date.now().toString();
+                        
                         localStorage.setItem('token', token); // Almacena el token en localStorage
                         localStorage.setItem('user', JSON.stringify(user)); // Almacena la información del usuario
+                        localStorage.setItem('loginTime', loginTime); // Almacena el tiempo de login para control de sesión
+                        
                         commit('auth_success', { token, user }); // Actualiza el estado global
                         resolve(response);
                     })
@@ -75,6 +79,7 @@ export default createStore({
                         commit('auth_error');
                         localStorage.removeItem('token'); // Elimina el token en caso de error
                         localStorage.removeItem('user'); // Elimina la información del usuario
+                        localStorage.removeItem('loginTime'); // Elimina el tiempo de login
                         reject(error);
                     });
             });
@@ -96,7 +101,10 @@ export default createStore({
         logout({ commit }) {
             return new Promise(resolve => {
                 commit('logout'); // Restablece el estado global
-                localStorage.removeItem('token'); // Elimina el token de localStorage                localStorage.removeItem('user'); // Elimina la información del usuario
+                localStorage.removeItem('token'); // Elimina el token de localStorage
+                localStorage.removeItem('user'); // Elimina la información del usuario
+                localStorage.removeItem('loginTime'); // Elimina el tiempo de login
+                localStorage.removeItem('profesor'); // Elimina la información del profesor
                 resolve();
             });
         },
@@ -106,6 +114,7 @@ export default createStore({
                 commit('logout'); // Restablece el estado global
                 localStorage.removeItem('token'); // Elimina el token de localStorage
                 localStorage.removeItem('user'); // Elimina la información del usuario
+                localStorage.removeItem('loginTime'); // Elimina el tiempo de login
                 localStorage.removeItem('profesor'); // Elimina la información del profesor
                 resolve();
             });

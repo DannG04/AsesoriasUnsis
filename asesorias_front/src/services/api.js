@@ -5,6 +5,7 @@ import { useToast } from "vue-toastification";
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8080',
+  timeout: 10000, // Timeout de 10 segundos
   headers: {
     'Content-Type': 'application/json'
   }
@@ -12,6 +13,9 @@ const apiClient = axios.create({
 
 // Crear instancia de toast
 const toast = useToast();
+
+// Variable para evitar múltiples redirects simultáneos
+let isRedirecting = false;
 
 // Interceptor de peticiones para agregar el token
 apiClient.interceptors.request.use(
@@ -30,28 +34,69 @@ apiClient.interceptors.request.use(
 // Interceptor de respuestas para manejar errores de autenticación
 apiClient.interceptors.response.use(
   response => {
+    // Reset del flag de redirección en respuestas exitosas
+    isRedirecting = false;
     return response;
   },
   error => {
-    let showToast = false;
+    // Evitar múltiples procesamientos simultáneos
+    if (isRedirecting) {
+      return Promise.reject(error);
+    }
+
+    let shouldLogout = false;
     let toastMessage = '';
     
-    // Si hay error 401 (No autorizado) o 403 (Prohibido)
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      showToast = true;
-      toastMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
-    }
-    // Si el backend no responde o hay error de red
-    else if (error.code === 'NETWORK_ERROR' || 
-             error.code === 'ECONNREFUSED' || 
-             error.code === 'ERR_NETWORK' ||
-             !error.response) {
-      showToast = true;
-      toastMessage = 'Se perdió la conexión con el servidor. Redirigiendo al login...';
+    console.error('Error de API interceptado:', error);
+    
+    // Categorizar errores
+    if (error.response) {
+      // El servidor respondió con un código de error
+      const status = error.response.status;
+      
+      switch (status) {
+        case 401:
+          shouldLogout = true;
+          toastMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+          break;
+        case 403:
+          shouldLogout = true;
+          toastMessage = 'No tienes permisos para realizar esta acción.';
+          break;
+        case 404:
+          toastMessage = 'Recurso no encontrado.';
+          break;
+        case 500:
+          shouldLogout = true;
+          toastMessage = 'Error interno del servidor. Reiniciando sesión...';
+          break;
+        case 502:
+        case 503:
+        case 504:
+          shouldLogout = true;
+          toastMessage = 'Servidor no disponible. Verificando estado de sesión...';
+          break;
+        default:
+          if (status >= 500) {
+            shouldLogout = true;
+            toastMessage = 'Error del servidor. Verificando estado de sesión...';
+          }
+      }
+    } else if (error.request) {
+      // La petición se hizo pero no hubo respuesta
+      shouldLogout = true;
+      toastMessage = 'No se pudo conectar con el servidor. Verificando estado de sesión...';
+    } else {
+      // Error en la configuración de la petición
+      console.error('Error de configuración:', error.message);
+      toastMessage = 'Error en la solicitud. Intenta de nuevo.';
     }
     
-    // Mostrar toast si corresponde
-    if (showToast) {
+    // Procesar logout si es necesario
+    if (shouldLogout && !isRedirecting) {
+      handleLogout(toastMessage);
+    } else if (toastMessage && !shouldLogout) {
+      // Mostrar toast para errores que no requieren logout
       try {
         toast.error(toastMessage, {
           timeout: 5000,
@@ -60,24 +105,49 @@ apiClient.interceptors.response.use(
       } catch (toastError) {
         console.warn('Error mostrando toast:', toastError);
       }
-      
-      // Limpiar datos de autenticación
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('profesor');
-      store.commit('logout');
-      
-      // Redirigir al login solo si no estamos ya ahí
-      setTimeout(() => {
-        if (router.currentRoute.value.name !== 'Login') {
-          router.push('/login');
-        }
-      }, 1000); // Delay para que se vea el toast
     }
     
     return Promise.reject(error);
   }
 );
+
+/**
+ * Maneja el proceso de logout forzado
+ */
+function handleLogout(message) {
+  if (isRedirecting) return;
+  
+  isRedirecting = true;
+  
+  try {
+    toast.error(message, {
+      timeout: 5000,
+      position: 'top-center'
+    });
+  } catch (toastError) {
+    console.warn('Error mostrando toast:', toastError);
+  }
+  
+  // Limpiar datos de autenticación
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('profesor');
+  localStorage.removeItem('loginTime');
+  
+  // Limpiar store
+  store.commit('logout');
+  
+  // Redirigir al login
+  setTimeout(() => {
+    if (router.currentRoute.value.name !== 'Login') {
+      router.push('/login').finally(() => {
+        isRedirecting = false;
+      });
+    } else {
+      isRedirecting = false;
+    }
+  }, 1000);
+}
 
 export default {
   // Método para probar la conexión

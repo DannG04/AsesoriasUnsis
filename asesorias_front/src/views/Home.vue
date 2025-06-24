@@ -1,5 +1,8 @@
 <template>
   <div class="home-container">
+    <!-- Indicador de sesión (opcional) -->
+    <SessionIndicator :show-session-info="false" />
+    
     <!-- Encabezado de bienvenida -->
     <div class="welcome-header">
       <div class="welcome-content">
@@ -154,9 +157,13 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
+import SessionIndicator from '@/components/SessionIndicator.vue';
 
 export default {
   name: 'HomeView',
+  components: {
+    SessionIndicator
+  },
   setup() {
     // Store y Router
     const store = useStore();

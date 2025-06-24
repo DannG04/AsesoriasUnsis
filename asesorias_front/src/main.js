@@ -4,6 +4,7 @@ import router from './router';
 import store from './store';
 import axios from 'axios';
 import vuetify from './plugins/vuetify';
+import sessionPlugin from './plugins/sessionPlugin';
 import 'vuetify/styles';
 import { Icon } from '@iconify/vue'; // Importar Iconify
 import '@mdi/font/css/materialdesignicons.css';
@@ -48,6 +49,9 @@ app.use(Toast, {
     draggable: true, // Permitir arrastrar la notificación
     transition: 'Vue-Toastification__bounce' // Efecto de transición
 });
+
+// Usar el plugin de sesión DESPUÉS de store y router
+app.use(sessionPlugin);
 
 // Montar la aplicación en el elemento con ID 'app'
 app.mount('#app');
