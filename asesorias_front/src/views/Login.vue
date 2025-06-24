@@ -73,6 +73,7 @@
 
 <script>
 import { useToast } from "vue-toastification";
+import { useSessionManager } from "@/composables/useSessionManager";
 
 export default {
   name: 'LoginComponent',
@@ -84,12 +85,15 @@ export default {
       },
       error: '', // Mensaje de error
       loading: false, // Indicador de carga
-      toast: null // Instancia de toast para notificaciones
+      toast: null, // Instancia de toast para notificaciones
+      sessionManager: null // Gestor de sesión
     };
   },
   created() {
     // Inicializa la instancia de toast
     this.toast = useToast();
+    // Inicializa el gestor de sesión con store y router
+    this.sessionManager = useSessionManager(this.$store, this.$router);
   },
   methods: {
     /**
@@ -106,6 +110,14 @@ export default {
         .then(response => {
           console.log('Login exitoso:', response);
           console.log('Token guardado:', localStorage.getItem('token'));
+          
+          // Inicializar el gestor de sesión después del login exitoso
+          try {
+            this.sessionManager.initializeSession();
+          } catch (error) {
+            console.warn('Error inicializando sesión:', error);
+          }
+          
           this.$router.push('/Home');
           this.toast.success('Inicio de sesión exitoso. Bienvenido!');
         })
@@ -134,13 +146,47 @@ export default {
 
 /* Estilo para el botón principal */
 .botonPrimario {
-  background-color: #9AD7A7;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #9AD7A7 0%, #7BC88A 100%);
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(154, 215, 167, 0.3);
+}
+
+.botonPrimario::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.6s ease;
 }
 
 .botonPrimario:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, #7BC88A 0%, #5FA26D 100%);
+  border-color: transparent;
+}
+
+.botonPrimario:hover::before {
+  left: 100%;
+}
+
+.botonPrimario:active {
+  transform: translateY(-1px) scale(1.01);
+  transition: all 0.1s ease;
+}
+
+.botonPrimario:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(154, 215, 167, 0.4);
 }
 
 /* Estilo para el logo */
