@@ -71,12 +71,12 @@
       <div class="subjects-grid">
         <div v-for="materia in materias" :key="materia.id" class="subject-card">
           <div class="subject-icon">
-            <IconifyIcon icon="material-symbols-light:menu-book-outline" width="24" height="24" />
+            <IconifyIcon icon="material-symbols-light:menu-book-outline" width="42" height="42" />
           </div>
           <div class="subject-name">{{ materia.nombre }}</div>
         </div>
         <div v-if="materias.length === 0" class="no-subjects">
-          <IconifyIcon icon="material-symbols-light:info-outline" width="24" height="24" />
+          <IconifyIcon icon="material-symbols-light:info-outline" width="42" height="42" />
           <span>No hay materias asignadas</span>
         </div>
       </div>
@@ -88,7 +88,7 @@
       <div class="actions-grid">
         <div class="action-card" @click="navigateTo('/registro-asesorias')">
           <div class="action-icon primary">
-            <IconifyIcon icon="material-symbols-light:add-circle-outline" width="32" height="32" />
+            <IconifyIcon icon="material-symbols-light:add-circle-outline" width="50" height="50" />
           </div>
           <div class="action-content">
             <h4>Registrar Asesoría</h4>
@@ -98,7 +98,7 @@
         
         <div class="action-card" @click="navigateTo('/historial-asesorias')">
           <div class="action-icon secondary">
-            <IconifyIcon icon="material-symbols-light:history" width="32" height="32" />
+            <IconifyIcon icon="material-symbols-light:history" width="50" height="50" />
           </div>
           <div class="action-content">
             <h4>Historial</h4>
@@ -108,7 +108,7 @@
         
         <div class="action-card" @click="navigateTo('/estadisticas')">
           <div class="action-icon tertiary">
-            <IconifyIcon icon="material-symbols-light:analytics-outline" width="32" height="32" />
+            <IconifyIcon icon="material-symbols-light:analytics-outline" width="50" height="50" />
           </div>
           <div class="action-content">
             <h4>Estadísticas</h4>
@@ -118,7 +118,7 @@
         
         <div class="action-card" @click="navigateTo('/perfil')">
           <div class="action-icon quaternary">
-            <IconifyIcon icon="material-symbols-light:person-outline" width="32" height="32" />
+            <IconifyIcon icon="material-symbols-light:person-outline" width="50" height="50" />
           </div>
           <div class="action-content">
             <h4>Mi Perfil</h4>
@@ -325,7 +325,8 @@ export default {
 
 /* Encabezado de bienvenida */
 .welcome-header {
-  background: #DDE5FF;
+  background: #ffffff;
+  border-top: #378342 solid 5px;
   border-radius: 30px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -351,7 +352,7 @@ export default {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 2px solid #98A2C3;
+  border: 2px solid #378342;
   object-fit: cover;
 }
 
@@ -416,7 +417,7 @@ export default {
 }
 
 .stat-card {
-  background: #DDE5FF;
+  background: #ffffff;
   border-radius: 20px;
   padding: 25px;
   display: flex;
@@ -432,7 +433,8 @@ export default {
 }
 
 .stat-icon {
-  background: #B7C3E8;
+  background: #ffffff;
+  border: #000000 solid 2px;
   border-radius: 12px;
   padding: 1rem;
   color: #000000;
@@ -467,7 +469,7 @@ export default {
 }
 
 .subject-card {
-  background: #DDE5FF;
+  background: #ffffff;
   border-radius: 20px;
   padding: 20px;
   display: flex;
@@ -481,15 +483,17 @@ export default {
 }
 
 .subject-icon {
-  background: #B7C3E8;
+  background: #ffffff;
   border-radius: 12px;
   padding: 0.75rem;
-  color: #000000;
+  color: #1E3D59;
+  border: #1E3D59 solid 2px;
 }
 
 .subject-name {
   font-weight: 600;
   color: #000000;
+  border-bottom: #1E3D59 solid 2px;
   font-size: 16px;
 }
 
@@ -518,7 +522,8 @@ export default {
 }
 
 .action-card {
-  background: #DDE5FF;
+  background: #ffffff;
+  border: #F0F0F0 solid 3px;
   border-radius: 20px;
   padding: 25px;
   display: flex;
@@ -535,23 +540,27 @@ export default {
 .action-icon {
   border-radius: 12px;
   padding: 1rem;
-  color: #000000;
 }
 
 .action-icon.primary {
-  background: #B7C3E8;
+  background: #ffffff;
+    color: #378342;
+
 }
 
 .action-icon.secondary {
-  background: #B7C3E8;
+  background: #ffffff;
+    color: #eacc08;
 }
 
 .action-icon.tertiary {
-  background: #B7C3E8;
+  background: #ffffff;
+    color: #f73791;
 }
 
 .action-icon.quaternary {
-  background: #B7C3E8;
+  background: #ffffff;
+    color: #0830df;
 }
 
 .action-content h4 {
@@ -575,7 +584,8 @@ export default {
 }
 
 .info-card {
-  background: #DDE5FF;
+  background: #ffffff;
+  border: #F0F0F0 solid 3px;
   border-radius: 20px;
   padding: 25px;
 }

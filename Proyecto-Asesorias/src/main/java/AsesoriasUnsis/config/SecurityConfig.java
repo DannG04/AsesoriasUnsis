@@ -56,7 +56,8 @@ public class SecurityConfig {
                         .requestMatchers("/usuarios/**").permitAll() // Permitir acceso a endpoints de usuarios
                         .requestMatchers("/asesorias/**").permitAll() // Permitir acceso a endpoints de asesorías
                         .requestMatchers("/api/asesorias/historial").permitAll() // Permitir acceso al historial de asesorías
-                        // Cualquier otra ruta requiere autenticación
+                        .requestMatchers("/api/asesorias/pdf").permitAll()// Cualquier otra ruta requiere autenticación
+                        .requestMatchers("/api/asesorias/ciclo-actual").permitAll()// Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated());
 
         return http.build();

@@ -99,46 +99,8 @@
           <template v-slot:[`header.obs`]>
             <strong>OBS</strong>
           </template>
-          <template v-slot:[`header.actions`]>
-            <strong>ACCIONES</strong>
-          </template>
         </v-data-table>
       </v-card-text>
-
-    <!-- Dialog de confirmación para eliminar -->
-    <v-dialog v-model="deleteDialog" max-width="500px" persistent>
-      <v-card class="text-center pa-6" rounded="xl">
-        <v-card-title class="text-h5 text-center py-4 text-grey-darken-3">
-          ¿Desea eliminar este registro?
-        </v-card-title>
-        <v-card-subtitle class="text-center pb-6 text-grey-darken-1">
-          (Tome en cuenta que una vez eliminado no se podrá recuperar)
-        </v-card-subtitle>
-
-        <v-card-actions class="justify-end pb-4">
-          <v-btn
-              color="success"
-              variant="flat"
-              size="large"
-              @click="deleteStudent"
-              class="mx-3 px-8"
-              rounded="lg"
-          >
-            Eliminar
-          </v-btn>
-          <v-btn
-              color="error"
-              variant="flat"
-              size="large"
-              @click="deleteDialog = false"
-              class="mx-3 px-8"
-              rounded="lg"
-          >
-            Cancelar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <!-- Dialog de filtros por periodo -->
     <v-dialog v-model="showFilterDialog" max-width="400px">
@@ -201,7 +163,6 @@ import api from "@/services/api";
 
 
 // Estados reactivos
-const deleteDialog = ref(false)
 const snackbar = ref(false)
 const snackbarText = ref('')
 const snackbarColor = ref('success')
@@ -213,12 +174,27 @@ const loading = ref(false)
 const store = useStore();
 const currentProfesor = computed(() => store.getters.currentProfesor);
 
-// Estudiante seleccionado para eliminar
-const studentToDelete = ref(null)
-
 //Periodo actual
-const Periodo = ref('2024-2025B')
+const Periodo = ref('')
 const selectedPeriodo = ref('')
+
+// Función para obtener el ciclo actual desde la base de datos
+const obtenerCicloActual = async () => {
+  try {
+    const respuesta = await api.getCicloActual();
+    Periodo.value = respuesta.data;
+    console.log('Ciclo actual obtenido:', Periodo.value);
+    
+    // Actualizar la lista de períodos para incluir el ciclo actual
+    actualizarListaPeriodos(Periodo.value);
+    
+    return Periodo.value;
+  } catch (error) {
+    console.error('Error al obtener el ciclo actual:', error);
+    Periodo.value = '2024-2025B'; // Valor por defecto
+    return Periodo.value;
+  }
+};
 
 // Headers de la tabla - exactamente como en la imagen
 const headers = ref([
@@ -229,18 +205,26 @@ const headers = ref([
   { title: 'MATERIA', key: 'materia', sortable: true, width: '120px' },
   { title: 'FECHA', key: 'fecha', sortable: true, width: '110px' },
   { title: 'OBS', key: 'obs', sortable: false, width: '150px' }, // Aumentado de 80px a 150px
-  { title: 'ACCIONES', key: 'actions', sortable: false, width: '120px', align: 'center' } // Reducido de 160px a 120px
 ])
 
 // Lista de estudiantes - será reemplazada por datos reales de la API
 const students = ref([])
+const studentspdf = ref([]) // Para almacenar los datos del PDF
 
+// Lista de períodos que se actualizará dinámicamente
 const periodos = ref([
   '2024-2025A',
   '2024-2025B',
   '2023-2024A',
   '2023-2024B'
 ])
+
+// Función para actualizar la lista de períodos con el período actual
+const actualizarListaPeriodos = (cicloActual) => {
+  if (cicloActual && !periodos.value.includes(cicloActual)) {
+    periodos.value.unshift(cicloActual); // Agregar al inicio de la lista
+  }
+};
 
 // Computed para estudiantes filtrados
 const filteredStudents = computed(() => {
@@ -255,53 +239,25 @@ const filteredStudents = computed(() => {
     );
   }
 
+  // Ordenar por fecha (de más reciente a más antigua)
+  result.sort((a, b) => {
+    // Convertir las fechas a formato Date para comparar correctamente
+    const fechaA = new Date(a.fecha.split('/').reverse().join('-'));
+    const fechaB = new Date(b.fecha.split('/').reverse().join('-'));
+    return fechaB - fechaA; // Orden descendente (más reciente primero)
+  });
+
   return result;
 })
 
 // Funciones
-const confirmDelete = (student) => {
-  studentToDelete.value = student
-  deleteDialog.value = true
-}
-
-const deleteStudent = async () => {
-  if (studentToDelete.value) {
-    try {
-      // Primero intentamos eliminar de la base de datos si tenemos un ID
-      if (studentToDelete.value.id) {
-        // Aquí podrías agregar el código para eliminar del backend si tienes un endpoint
-        // Ejemplo: await api.eliminarAsesoria(studentToDelete.value.id);
-        console.log(`Eliminando asesoría con ID: ${studentToDelete.value.id}`);
-      }
-
-      // Luego eliminamos del array local
-      const index = students.value.findIndex(s =>
-        s.id === studentToDelete.value.id ||
-        (s.matricula === studentToDelete.value.matricula &&
-         s.fecha === studentToDelete.value.fecha)
-      );
-
-      if (index > -1) {
-        students.value.splice(index, 1);
-        showSnackbar('Registro de asesoría eliminado correctamente', 'success');
-      } else {
-        showSnackbar('No se encontró el registro a eliminar', 'error');
-      }
-    } catch (error) {
-      console.error('Error al eliminar asesoría:', error);
-      showSnackbar('Error al eliminar el registro', 'error');
-    }
-  }
-  deleteDialog.value = false;
-  studentToDelete.value = null;
-}
-
-// Función para cargar el historial de asesorías
+// Función para cargar el historial de asesorías usando asesorias_pdf
 const cargarHistorialAsesorias = async (idProfesor, periodo) => {
   loading.value = true;
   try {
     console.log(`Cargando asesorías para profesor ID: ${idProfesor} en periodo: ${periodo}`);
     const respuesta = await api.getAsesoriasPorProfesorYCicloValido(idProfesor, periodo);
+    const respuestapdf = await api.getAsesoriasPdf(idProfesor, periodo);
     console.log('Datos recibidos:', respuesta.data);
 
     // Transformar los datos al formato que espera la tabla
@@ -317,6 +273,17 @@ const cargarHistorialAsesorias = async (idProfesor, periodo) => {
       obs: asesoria.obsest || ''
     }));
 
+    studentspdf.value = respuestapdf.data.map(asesoria => ({
+      fechaAses : asesoria.fechaAses,
+      nombreAlumn : asesoria.nombreAlumn,
+      grupoAlumn : asesoria.grupoAlumn,
+      enSustitcion : asesoria.enSustitcion,
+      nombreMat : asesoria.nombreMat,
+      horaStart : asesoria.horaStart,
+      horaEnd : asesoria.horaEnd,
+      obs : asesoria.obs,
+    }));
+
     console.log('Datos transformados:', students.value);
     showSnackbar('Datos cargados correctamente', 'success');
   } catch (error) {
@@ -327,29 +294,11 @@ const cargarHistorialAsesorias = async (idProfesor, periodo) => {
   }
 };
 
-/*// Función para formatear la fecha a formato DD/MM/YYYY
-const formatearFecha = (fechaStr) => {
-  if (!fechaStr) return '';
-
-  try {
-    const fecha = new Date(fechaStr);
-    if (isNaN(fecha.getTime())) return fechaStr; // Si no es válida, retornamos el string original
-
-    return fecha.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  } catch (error) {
-    console.error('Error al formatear fecha:', error);
-    return fechaStr;
-  }
-};*/
-
 // Función para aplicar el filtro de periodo
 const aplicarFiltro = async () => {
-  if (selectedPeriodo.value && currentProfesor.value?.idProfesor) {
-    await cargarHistorialAsesorias(currentProfesor.value.idProfesor, selectedPeriodo.value);
+  if (currentProfesor.value?.idProfesor) {
+    const periodoAUsar = selectedPeriodo.value || Periodo.value;
+    await cargarHistorialAsesorias(currentProfesor.value.idProfesor, periodoAUsar);
   }
   showFilterDialog.value = false;
 };
@@ -359,9 +308,12 @@ const cargarDatosProfesor = async () => {
   try {
     await store.dispatch('dataProfesor');
 
-    // Cargar historial de asesorías una vez que se tengan los datos del profesor
+    // Obtener el ciclo actual desde la base de datos
+    const cicloActual = await obtenerCicloActual();
+
+    // Cargar historial de asesorías una vez que se tengan los datos del profesor y el ciclo
     if (currentProfesor.value?.idProfesor) {
-      await cargarHistorialAsesorias(currentProfesor.value.idProfesor, Periodo.value);
+      await cargarHistorialAsesorias(currentProfesor.value.idProfesor, cicloActual);
     }
   } catch (error) {
     console.error('Error al cargar datos del profesor:', error);
@@ -422,32 +374,32 @@ const exportToPDF = () => {
       <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
         <thead>
           <tr style="background: #f5f5f5;">
-            <th style="border: 1px solid #000; padding: 4px;">FECHA</th>
+            <th style="border: 1px solid #000; padding: 4px; width: 110px;">FECHA</th>
             <th style="border: 1px solid #000; padding: 4px;">NOMBRE DEL ALUMNO</th>
             <th style="border: 1px solid #000; padding: 4px;">GRUPO</th>
             <th style="border: 1px solid #000; padding: 4px;">EN SUSTITUCIÓN DE:<br><span style='font-weight:normal;font-size:10px;'>(Biblioteca o sala de computo)</span></th>
             <th style="border: 1px solid #000; padding: 4px;">NOMBRE DE LA MATERIA</th>
             <th style="border: 1px solid #000; padding: 4px;">HORA DE INICIO</th>
             <th style="border: 1px solid #000; padding: 4px;">HORA DE TERMINO</th>
-            <th style="border: 1px solid #000; padding: 4px;">FIRMA DEL ALUMNO</th>
+            <th style="border: 1px solid #000; padding: 4px; width: 70px;">FIRMA DEL ALUMNO</th>
             <th style="border: 1px solid #000; padding: 4px;">OBSERVACIONES</th>
           </tr>
         </thead>
         <tbody>
-          ${filteredStudents.value.map(student => `
+          ${studentspdf.value.map(asesoria => `
             <tr>
-              <td style="border: 1px solid #000; padding: 4px;">${student.fecha || ''}</td>
-              <td style="border: 1px solid #000; padding: 4px;">${student.alumno || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.fechaAses || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.nombreAlumn || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.grupoAlumn || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.enSustitcion || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.nombreMat || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.horaStart || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.horaEnd || ''}</td>
               <td style="border: 1px solid #000; padding: 4px;"></td>
-              <td style="border: 1px solid #000; padding: 4px;"></td>
-              <td style="border: 1px solid #000; padding: 4px;">${student.materia || ''}</td>
-              <td style="border: 1px solid #000; padding: 4px;"></td>
-              <td style="border: 1px solid #000; padding: 4px;"></td>
-              <td style="border: 1px solid #000; padding: 4px;"></td>
-              <td style="border: 1px solid #000; padding: 4px;">${student.obs || ''}</td>
+              <td style="border: 1px solid #000; padding: 4px;">${asesoria.obs || ''}</td>
             </tr>
           `).join('')}
-          ${Array(10 - filteredStudents.value.length > 0 ? 10 - filteredStudents.value.length : 0).fill('<tr>' +
+          ${Array(10 - studentspdf.value.length > 0 ? 10 - studentspdf.value.length : 0).fill('<tr>' +
             '<td style="border: 1px solid #000; padding: 16px 4px; height: 24px;"></td>'.repeat(9) + '</tr>').join('')}
         </tbody>
       </table>
